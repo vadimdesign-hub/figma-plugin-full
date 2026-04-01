@@ -1,40 +1,67 @@
-Below are the steps to get your plugin running. You can also find instructions at:
+# Plyneta — Figma Plugin
 
-  https://www.figma.com/plugin-docs/plugin-quickstart-guide/
+Набор утилит для дизайнеров: выравнивание секций, управление приоритетами, поиск похожих объектов и другие инструменты для ускорения работы в Figma.
 
-This plugin template uses Typescript and NPM, two standard tools in creating JavaScript applications.
+---
 
-First, download Node.js which comes with NPM. This will allow you to install TypeScript and other
-libraries. You can find the download link here:
+## Как установить
 
-  https://nodejs.org/en/download/
+1. Скачай или склонируй репозиторий
+2. Открой Figma → Plugins → Development → Import plugin from manifest
+3. Выбери `manifest.json` из папки проекта
+4. Плагин появится в списке плагинов разработки
 
-Next, install TypeScript using the command:
+---
 
-  npm install -g typescript
+## Команды
 
-Finally, in the directory of your plugin, get the latest type definitions for the plugin API by running:
+### ⚡ Выровнять все секции
+Автоматически выравнивает все секции на странице по сетке — расставляет их в ряды с одинаковыми отступами. Ничего не нужно выделять, плагин берёт все секции сам.
 
-  npm install --save-dev @figma/plugin-typings
+### ➡️ Увеличить секцию
+Увеличивает ширину выделенной секции на 620 px вправо, не смещая левую границу. Все секции, расположенные правее, автоматически сдвигаются на 620 px — структура макета сохраняется.
 
-If you are familiar with JavaScript, TypeScript will look very familiar. In fact, valid JavaScript code
-is already valid Typescript code.
+### 📐 Выровнять + тёмная
+Выравнивает фреймы внутри секции с учётом тёмной темы. Определяет ориентацию автоматически (горизонталь или вертикаль) и расставляет фреймы с нужными отступами.
 
-TypeScript adds type annotations to variables. This allows code editors such as Visual Studio Code
-to provide information about the Figma API while you are writing code, as well as help catch bugs
-you previously didn't notice.
+### 🗂️ Обернуть + выровнять
+Выдели любые объекты — плагин обернёт их в новую секцию и выровняет в один ряд. Если выделена уже существующая секция — просто выровняет содержимое внутри неё. Работает с любыми типами объектов: фреймы, компоненты, группы и т.д.
 
-For more information, visit https://www.typescriptlang.org/
+### 🔄 Замена instance
+Выдели несколько объектов, последним — эталонный экземпляр. Плагин заменит все остальные выделенные объекты на копии эталона, сохранив их позиции.
 
-Using TypeScript requires a compiler to convert TypeScript (code.ts) into JavaScript (code.js)
-for the browser to run.
+### ✂️ Нарезка 1px
+Нарезает выделенные объекты на слайсы по 1 px — удобно для подготовки ассетов.
 
-We recommend writing TypeScript code using Visual Studio code:
+### 🖼️ Размеры в арт
+Проставляет размеры текстовых объектов под соответствующими артбордами. Каждому объекту должно соответствовать два текстовых слоя (ширина и высота).
 
-1. Download Visual Studio Code if you haven't already: https://code.visualstudio.com/.
-2. Open this directory in Visual Studio Code.
-3. Compile TypeScript to JavaScript: Run the "Terminal > Run Build Task..." menu item,
-    then select "npm: watch". You will have to do this again every time
-    you reopen Visual Studio Code.
+### 🔍 Найти похожие
+Выдели любой объект — фрейм, компонент, прямоугольник, что угодно. Плагин найдёт по всей странице объекты с таким же именем и такими же размерами и выделит их все, включая исходный.
 
-That's it! Visual Studio Code will regenerate the JavaScript file every time you save.
+### 🟠 Средний приоритет
+Добавляет к выделенному объекту тег «Средний приоритет» (оранжевый). Если тег уже есть — обновляет его.
+
+### 🔴 Высокий приоритет
+Добавляет тег «Высокий приоритет» (красный). Если тег уже есть — обновляет его.
+
+### 🟢 Задача выполнена
+Добавляет тег «Задача выполнена» (зелёный). Если тег уже есть — обновляет его.
+
+### 📖 FAQ
+Открывает встроенную справку по всем командам плагина прямо внутри Figma.
+
+---
+
+## Особенности
+
+- Не требует API-ключей и внешних сервисов — всё работает локально внутри Figma
+- Работает с любыми типами объектов: фреймы, компоненты, главные компоненты, группы
+- Поиск по всей странице, включая содержимое секций
+- Встроенный FAQ с описанием каждой команды
+
+---
+
+## Контакты
+
+Вадим — [Telegram](#)
