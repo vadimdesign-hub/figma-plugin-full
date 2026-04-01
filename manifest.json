@@ -1,0 +1,60 @@
+{
+  "name": "Plyneta",
+  "id": "playneta-design-utilities",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "menu": [
+    {
+      "name": "⚡ Выровнять все секции",
+      "command": "alignAllSections"
+    },
+    {
+      "name": "➡️ Увеличить секцию",
+      "command": "expandSection"
+    },
+    {
+      "name": "📐 Выровнять + темная",
+      "command": "autosection"
+    },
+    {
+      "name": "🗂️ Обернуть + выровнять",
+      "command": "wrap"
+    },
+    {
+      "name": "🔄 Замена instance",
+      "command": "replace"
+    },
+    {
+      "name": "✂️ Нарезка 1px",
+      "command": "slice"
+    },
+    {
+      "name": "🖼️ Размеры в арт",
+      "command": "art"
+    },
+    {
+      "name": "🔍 Найти похожие",
+      "command": "findSimilar"
+    },
+    {
+      "name": "🟠 Средний приоритет",
+      "command": "floatingTag"
+    },
+
+    {
+      "name": "🔴 Высокий приоритет",
+      "command": "urgentTag"
+    },
+
+    {
+      "name": "🟢 Задача выполнена",
+      "command": "doneTag"
+    },
+    {
+      "name": "📖 FAQ",
+      "command": "faq"
+    }
+  ]
+}

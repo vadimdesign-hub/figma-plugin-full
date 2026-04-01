@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 16px 20px;
+      border-bottom: 1px solid #2e2e2e;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.01em;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .close-btn:hover {
+      background: #2e2e2e;
+      color: #ffffff;
+    }
+
+    .close-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── BODY ── */
+    .body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      border-right: 1px solid #2e2e2e;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      margin: 1px 6px;
+      transition: background 0.12s;
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.3;
+    }
+
+    .tab:hover {
+      background: #2a2a2a;
+      color: #e0e0e0;
+    }
+
+    .tab.active {
+      background: #2d2d2d;
+      color: #ffffff;
+    }
+
+    .tab-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      width: 20px;
+      text-align: center;
+    }
+
+    .tab-label {
+      flex: 1;
+    }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+    }
+
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 2px; }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 16px;
+    }
+
+    .description {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #b0b0b0;
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #555;
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    .how-to {
+      background: #252525;
+      border: 1px solid #2e2e2e;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #c0c0c0;
+    }
+
+    .divider {
+      height: 1px;
+      background: #2a2a2a;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="header-title">FAQ: описание функционала плагинов</span>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar"></div>
+
+    <!-- CONTENT -->
+    <div class="content" id="content"></div>
+
+  </div>
+
+  <script>
+    const menu = [
+      {
+        icon: "⚡",
+        label: "Выровнять все секции",
+        description: `Одна кнопка — и все секции на странице выстраиваются в аккуратную сетку слева направо, сверху вниз. Секция с компонентами автоматически встаёт первой в своём ряду. Полезно когда после долгой работы страница превратилась в хаос — запускаешь и всё встаёт на своё место.`,
+        how: "Ничего не нужно выделять — просто запусти команду на нужной странице."
+      },
+      {
+        icon: "➡️",
+        label: "Увеличить секцию",
+        description: `Увеличивает ширину выбранной секции на 540 px вправо, не смещая её левую границу. Все секции, расположенные правее, автоматически сдвигаются на 540 px, чтобы сохранить структуру макета. Удобно когда нужно добавить новые экраны в уже выстроенный ряд — не нужно вручную двигать всё соседнее.`,
+        how: "Выдели одну секцию и запусти команду."
+      },
+      {
+        icon: "📐",
+        label: "Выровнять + тёмная",
+        description: `Выравнивает экраны внутри секции с одинаковыми отступами. Если у тебя нет секции — создаст её сама. Если экраны высокие (больше 960px) — автоматически создаст второй ряд под ними для тёмной версии дизайна. Больше не нужно вручную выстраивать каждый экран и считать отступы.`,
+        how: "Выдели секцию или набор фреймов и запусти команду."
+      },
+      {
+        icon: "🗂️",
+        label: "Обернуть + выровнять",
+        description: `Выдели набор экранов — функция сама создаст секцию «Экраны», сложит их туда и выровняет. Уже есть секция с беспорядком? Выдели её — всё выровняется на месте. Ориентацию (в ряд или в столбик) определяет сама, исходя из того как расположены экраны.`,
+        how: "Выдели фреймы или готовую секцию и запусти команду."
+      },
+      {
+        icon: "🔄",
+        label: "Замена instance",
+        description: `Представь, что у тебя на макете 20 старых карточек, которые нужно заменить на новую версию. Вместо того чтобы удалять каждую и ставить новую вручную — просто выдели все старые карточки, последним добавь в выделение новую, запусти функцию. Всё заменилось, позиции и размеры сохранились.`,
+        how: "Выдели объекты которые нужно заменить, последним в выделении добавь тот объект, на который хочешь заменить — и запусти команду. Работает с любыми объектами."
+      },
+      {
+        icon: "✂️",
+        label: "Нарезка 1px",
+        description: `Подготавливает элементы к передаче в разработку. Каждый выбранный объект аккуратно упаковывается в свой контейнер с отступом 1px, все контейнеры складываются в одну секцию «Нарезка». Разработчик получает чистые, изолированные ассеты без лишних полей.`,
+        how: "Выдели все объекты которые нужно нарезать и запусти команду."
+      },
+      {
+        icon: "🖼️",
+        label: "Размеры в арт",
+        description: `Автоматически проставляет правильные размеры артов внутри выбранных объектов. Первый текстовый слой показывает реальный размер (W×H px), второй — итоговый размер арта в нужном масштабе: объекты до 160px — в 4x, остальные — в 3x с округлением до шаблона 160 / 320 / 540. Не нужно считать вручную и рисковать ошибиться.`,
+        how: "Выдели объекты с текстовыми слоями для размеров и запусти команду."
+      },
+      {
+        icon: "🔍",
+        label: "Найти похожие",
+        description: `Выдели любой объект на странице — фрейм, компонент, прямоугольник — и запусти команду. Плагин найдёт по всей текущей странице все объекты с точно таким же именем и точно такими же размерами (ширина и высота). Все найденные объекты выделятся разом вместе с исходным, и вьюпорт подстроится, чтобы их было видно. Удобно когда нужно быстро найти все однотипные элементы — например, все карточки одного размера или все иконки с одним именем.`,
+        how: "Выдели один объект и запусти команду. Если похожих не найдено — появится уведомление."
+      },
+      {
+        icon: "🟠",
+        label: "Средний приоритет",
+        description: `Вешает на выбранный объект оранжевый тег «Средний приоритет» с иконкой ⚠️. Означает: здесь есть что доделать, но не срочно. Если на объекте уже висит другой тег — он перекрасится в оранжевый, пересоздавать не нужно. Вся команда видит статус прямо в Figma.`,
+        how: "Выдели объект и запусти команду."
+      },
+      {
+        icon: "🔴",
+        label: "Высокий приоритет",
+        description: `Вешает красный тег «Высокий приоритет» с иконкой ⏰. Означает: это нужно исправить как можно скорее, это блокер. Хорошо заметен на макете — сложно пропустить на ревью или при передаче в разработку. Если уже есть тег — меняет его на срочный.`,
+        how: "Выдели объект и запусти команду."
+      },
+      {
+        icon: "🟢",
+        label: "Задача выполнена",
+        description: `Вешает зелёный тег «Задача выполнена» с иконкой ✅. Означает: правки приняты, можно двигаться дальше. Если уже есть тег — меняет его на выполненный.\n\nВсе три тега вместе образуют простую систему статусов прямо внутри Figma — без лишних инструментов и переключений между приложениями.`,
+        how: "Выдели объект и запусти команду."
+      }
+    ];
+
+    const sidebar = document.getElementById("sidebar");
+    const content = document.getElementById("content");
+
+    menu.forEach((item, index) => {
+      // Tab
+      const tab = document.createElement("div");
+      tab.className = "tab" + (index === 0 ? " active" : "");
+      tab.dataset.index = index;
+      tab.innerHTML = `<span class="tab-icon">${item.icon}</span><span class="tab-label">${item.label}</span>`;
+      tab.addEventListener("click", () => activate(index));
+      sidebar.appendChild(tab);
+
+      // Page
+      const page = document.createElement("div");
+      page.className = "page" + (index === 0 ? " active" : "");
+      page.dataset.index = index;
+      page.innerHTML = `
+        <div class="page-icon">${item.icon}</div>
+        <div class="page-title">${item.label}</div>
+        <div class="description">${item.description.replace(/\n/g, "<br>")}</div>
+        <div class="divider"></div>
+        <div class="section-label">Как использовать</div>
+        <div class="how-to">${item.how}</div>
+      `;
+      content.appendChild(page);
+    });
+
+    function activate(index) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelector(`.tab[data-index="${index}"]`).classList.add("active");
+      document.querySelector(`.page[data-index="${index}"]`).classList.add("active");
+    }
+  </script>
+
+  <script>
+    window.onmessage = (event) => {
+      // обработка входящих сообщений если понадобится
+    };
+  </script>
+</body>
+</html>
