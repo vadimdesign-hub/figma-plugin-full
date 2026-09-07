@@ -34,6 +34,14 @@
       "command": "replace"
     },
     {
+      "name": "🏷️ Переименовать",
+      "command": "rename"
+    },
+    {
+      "name": "📦 Перенести объекты",
+      "command": "moveObjects"
+    },
+    {
       "name": "✂️ Нарезка 1px",
       "command": "slice"
     },

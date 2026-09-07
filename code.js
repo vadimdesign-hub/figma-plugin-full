@@ -5,6 +5,7 @@ let keepAlive = false;
 let pendingTranslations = 0;
 let lastAddedNode = null;
 let prevSelectionIds = new Set();
+let selectionOrderIds = []; // порядок, в котором объекты попали в текущее выделение (для "Переименовать")
 function tryClose() { if (!keepAlive) figma.closePlugin(); }
 
 function checkFrameSelected() {
@@ -26,6 +27,10 @@ figma.on("selectionchange", () => {
     lastAddedNode = sel[0];
   }
 
+  // Копим полный порядок выделения: новые id — в конец, снятые с выделения — убираем
+  selectionOrderIds.push(...newNodes.map(n => n.id));
+  selectionOrderIds = selectionOrderIds.filter(id => curIds.has(id));
+
   prevSelectionIds = curIds;
   checkFrameSelected();
 });
@@ -35,6 +40,16 @@ switch (figma.command) {
   // 🔄 Заменяет выделенные объекты на соответствующие Instance
   case "replace":
     replaceWithInstance();
+    break;
+
+  // 🏷️ Переименовывает вторую половину выделения по именам первой
+  case "rename":
+    renameByOrder();
+    break;
+
+  // 📦 Перенести объекты — копирует объекты из первой половины выделения в контейнеры из второй
+  case "moveObjects":
+    moveObjectsByOrder();
     break;
 
   // 📐 Выравнивает фреймы внутри секции или создает секцию, если выделены фреймы
@@ -258,7 +273,9 @@ figma.ui.onmessage = async (msg) => {
     case "expandSectionLeft": expandSectionLeft(msg.duplicate !== false);  break;
     case "autosection":      await autoSectionAlign(msg.withKeyboard); break;
     case "wrap":             wrapOrAlignSectionClean(); break;
-    case "replace":          replaceWithInstance(); break;
+    case "replace":          replaceWithInstance(msg.keepSize); break;
+    case "rename":           renameByOrder(); break;
+    case "moveObjects":      moveObjectsByOrder(); break;
     case "slice":
       if (msg.product) createServerIcons();
       else if (msg.scale267) scaleSelection267();
@@ -284,7 +301,7 @@ figma.ui.onmessage = async (msg) => {
 // ============================
 // Replace With Any Object
 // ============================
-async function replaceWithInstance() {
+async function replaceWithInstance(keepSize = false) {
 
   const selection = figma.currentPage.selection;
 
@@ -327,7 +344,7 @@ async function replaceWithInstance() {
     newNode.x = x;
     newNode.y = y;
 
-    if ("resize" in newNode) {
+    if (!keepSize && "resize" in newNode) {
       try {
         newNode.resize(width, height);
       } catch (e) {}
@@ -2061,6 +2078,66 @@ function translateFrames() {
   } else {
     figma.notify("Переводим...");
   }
+}
+
+// ============================
+// Общий помощник: делит выделение пополам по порядку реального добавления
+// (копится в selectionOrderIds, пока открыта панель). Если порядок недоступен
+// (например всё выделили одним движением ещё до открытия панели) — используем
+// порядок как его отдаёт сама Figma.
+// ============================
+function splitSelectionByOrder(errorMessage) {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length < 2 || selection.length % 2 !== 0) {
+    figma.notify(errorMessage);
+    tryClose();
+    return null;
+  }
+
+  const ordered = selectionOrderIds.length === selection.length
+    ? selectionOrderIds.map(id => selection.find(n => n.id === id))
+    : selection;
+
+  const half = ordered.length / 2;
+  return { sources: ordered.slice(0, half), targets: ordered.slice(half) };
+}
+
+// ============================
+// 🏷️ ПЕРЕИМЕНОВАТЬ — переносит имена из первой половины выделения во вторую
+// ============================
+function renameByOrder() {
+  const split = splitSelectionByOrder("Выдели чётное количество объектов: сначала исходные, потом те, что переименовать");
+  if (!split) return;
+
+  split.targets.forEach((target, i) => { target.name = split.sources[i].name; });
+
+  figma.notify(`Переименовано объектов: ${split.targets.length} 🚀`);
+  tryClose();
+}
+
+// ============================
+// 📦 ПЕРЕНЕСТИ ОБЪЕКТЫ — клонирует объекты из первой половины выделения
+// внутрь контейнеров из второй половины (позиция на холсте сохраняется,
+// оригиналы остаются на месте — копия, а не перемещение)
+// ============================
+function moveObjectsByOrder() {
+  const split = splitSelectionByOrder("Выдели чётное количество объектов: сначала то, что копируем, потом — куда");
+  if (!split) return;
+
+  let copied = 0;
+  split.targets.forEach((target, i) => {
+    const source = split.sources[i];
+    if (!source || !target || !("appendChild" in target) || !("clone" in source)) return;
+    try {
+      const clone = source.clone();
+      target.appendChild(clone);
+      copied++;
+    } catch (e) {}
+  });
+
+  figma.notify(`Скопировано объектов: ${copied} 🚀`);
+  tryClose();
 }
 
 // ============================

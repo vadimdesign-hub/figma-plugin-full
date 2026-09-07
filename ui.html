@@ -794,6 +794,8 @@
       custom:   SVG('<path d="M9 2l1.8 3.6L15 6.5l-3 2.9.7 4.1L9 11.4l-3.7 2.1.7-4.1-3-2.9 4.2-.9z"/>'),
       gridLayout: SVG('<rect x="2" y="2" width="4" height="4" rx="0.5"/><rect x="7" y="2" width="4" height="4" rx="0.5"/><rect x="12" y="2" width="4" height="4" rx="0.5"/><rect x="2" y="7" width="4" height="4" rx="0.5"/><rect x="7" y="7" width="4" height="4" rx="0.5"/><rect x="12" y="7" width="4" height="4" rx="0.5"/><rect x="2" y="12" width="4" height="4" rx="0.5"/><rect x="7" y="12" width="4" height="4" rx="0.5"/>'),
       component: SVG('<path d="M9 2L11.5 5L9 8L6.5 5Z"/><path d="M12 9L14.5 6.5L17 9L14.5 11.5Z"/><path d="M9 10L11.5 13L9 16L6.5 13Z"/><path d="M1 9L3.5 6.5L6 9L3.5 11.5Z"/>'),
+      tag:       SVG('<path d="M2 2h6l8 8-6 6-8-8V2z"/><circle cx="5.5" cy="5.5" r="1" fill="var(--svg-stroke)"/>'),
+      moveInto:  SVG('<rect x="8" y="3" width="8" height="12" rx="1.5"/><path d="M1 9h6.5"/><path d="M4.5 6L8 9l-3.5 3"/>'),
     };
     const menu = [
       {
@@ -834,9 +836,23 @@
       {
         icon: IC.swap, emojiIcon: "🔄",
         label: "Замена instance",
-        getPreview(s) { const i = s === "emoji" ? "🔄" : IC.swap; return `<div class="btn-preview"><div class="btn-preview-item"><span class="bp-icon">${i}</span><span class="bp-label">Замена</span></div></div>`; },
-        description: `Представь, что у тебя на макете 20 старых карточек, которые нужно заменить на новую версию. Вместо того чтобы удалять каждую и ставить новую вручную — просто выдели все старые карточки, последним добавь в выделение новую, запусти функцию. Всё заменилось, позиции и размеры сохранились.`,
-        how: "Выдели объекты которые нужно заменить, последним в выделении добавь тот объект, на который хочешь заменить — и запусти команду. Работает с любыми объектами."
+        getPreview(s) { const i = s === "emoji" ? "🔄" : IC.swap; return `<div class="btn-preview"><div class="btn-preview-item"><span class="bp-icon">${i}</span><span class="bp-label">Замена</span><div class="bp-check" style="top:4px;right:4px"></div></div></div>`; },
+        description: `Представь, что у тебя на макете 20 старых карточек, которые нужно заменить на новую версию. Вместо того чтобы удалять каждую и ставить новую вручную — просто выдели все старые карточки, последним добавь в выделение новую, запусти функцию. Всё заменилось, позиции сохранились.\n\nПо умолчанию каждый клон эталона растягивается под размер заменяемого объекта. На кнопке в панели инструментов есть чекбокс — если его включить, размер меняться не будет: клон останется того же размера, что и сам эталон.`,
+        how: "Выдели объекты которые нужно заменить, последним в выделении добавь тот объект, на который хочешь заменить — и запусти команду. Работает с любыми объектами.\n\nЧтобы сохранить исходный размер эталона вместо растягивания под заменяемые объекты — отметь чекбокс на кнопке перед запуском."
+      },
+      {
+        icon: IC.tag, emojiIcon: "🏷️",
+        label: "Переименовать",
+        getPreview(s) { const i = s === "emoji" ? "🏷️" : IC.tag; return `<div class="btn-preview"><div class="btn-preview-item"><span class="bp-icon">${i}</span><span class="bp-label">Переим.</span></div></div>`; },
+        description: `Копирует имена из первой половины выделения во вторую. Выдели сначала объекты-«источники» (например 5 фреймов с нужными именами), затем, не снимая выделения, добавь ещё столько же объектов-«целей» со случайными именами — итоговое количество выделенного всегда чётное. По нажатию кнопки первый из целей получит имя первого источника, второй — имя второго, и так по порядку.\n\nВажно: порядок определяется тем, в каком порядке объекты реально добавлялись в выделение (пока открыта панель), а не их положением на холсте.`,
+        how: "Выдели по порядку объекты-источники, затем (в то же выделение) — объекты-цели в том же количестве, и нажми «Переименовать»."
+      },
+      {
+        icon: IC.moveInto, emojiIcon: "📦",
+        label: "Перенести объекты",
+        getPreview(s) { const i = s === "emoji" ? "📦" : IC.moveInto; return `<div class="btn-preview"><div class="btn-preview-item"><span class="bp-icon">${i}</span><span class="bp-label">Перенос</span></div></div>`; },
+        description: `Копирует объекты из первой половины выделения внутрь контейнеров из второй половины (оригиналы остаются на месте). Например: на трёх экранах выделен по одному внутреннему объекту (по одному на экран), затем, не снимая выделения, добавляются три целевых фрейма-экрана. По нажатию кнопки копия первого выделенного объекта попадает в первый целевой фрейм, копия второго — во второй, копия третьего — в третий (и так далее, если объектов больше). Абсолютная позиция на холсте сохраняется — если целевой фрейм расположен так же, как исходный (например экраны выстроены в ряд), копия окажется в том же месте внутри нового фрейма.\n\nКак и в «Переименовать», порядок определяется тем, в каком порядке объекты реально добавлялись в выделение, пока открыта панель.`,
+        how: "Выдели по порядку объекты, которые нужно скопировать, затем (в то же выделение) — целевые фреймы/контейнеры в том же количестве, и нажми «Перенести объекты»."
       },
       {
         icon: IC.scissors, emojiIcon: "✂️",
@@ -970,7 +986,9 @@
       { icon: IC.contrast, emojiIcon: "📐", label: "Тёмная",   command: "autosection" },
       { icon: IC.frame,    emojiIcon: "🗂️", label: "Обернуть", command: "wrap"        },
       { icon: IC.code,     emojiIcon: "🚀", label: "Dev",       command: "readyForDev"      },
-      { icon: IC.swap,     emojiIcon: "🔄", label: "Замена",   command: "replace"          },
+      { icon: IC.swap,     emojiIcon: "🔄", label: "Замена",   command: "replace", hasKeepSizeCheck: true },
+      { icon: IC.tag,      emojiIcon: "🏷️", label: "Переим.",  command: "rename"   },
+      { icon: IC.moveInto, emojiIcon: "📦", label: "Перенос",  command: "moveObjects" },
       { icon: IC.scissors, emojiIcon: "✂️", label: "Нарезка",  command: "slice", width: 120 },
       { icon: IC.image,    emojiIcon: "🖼️", label: "В арт",    command: "art"              },
       { icon: IC.search,   emojiIcon: "🔍", label: "Похожие",  command: "findSimilar", hasSectionCheck: true },
@@ -1304,6 +1322,16 @@
           btn.appendChild(schk);
           btn.addEventListener("click", () => {
             parent.postMessage({ pluginMessage: { type: "run", command: t.command, sectionOnly: schk.checked } }, "*");
+          });
+        } else if (t.hasKeepSizeCheck) {
+          const kchk = document.createElement("input");
+          kchk.type = "checkbox";
+          kchk.className = "btn-kbd-check";
+          kchk.title = "Не менять размер (оставить как у эталона)";
+          kchk.addEventListener("click", e => e.stopPropagation());
+          btn.appendChild(kchk);
+          btn.addEventListener("click", () => {
+            parent.postMessage({ pluginMessage: { type: "run", command: t.command, keepSize: kchk.checked } }, "*");
           });
         } else {
           btn.addEventListener("click", () => {
