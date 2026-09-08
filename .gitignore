@@ -5,3 +5,8 @@ node_modules
 
 out/
 dist/
+
+# Unrelated local tooling (Python venv etc — huge, not part of the plugin)
+bgremover/
+.venv/
+__pycache__/

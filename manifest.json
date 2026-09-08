@@ -10,98 +10,12 @@
   },
   "menu": [
     {
-      "name": "⚡ Выровнять все секции",
-      "command": "alignAllSections"
-    },
-    {
-      "name": "➡️ Увеличить секцию →",
-      "command": "expandSection"
-    },
-    {
-      "name": "⬅️ Увеличить секцию ←",
-      "command": "expandSectionLeft"
-    },
-    {
-      "name": "📐 Выровнять + темная",
-      "command": "autosection"
-    },
-    {
-      "name": "🗂️ Обернуть + выровнять",
-      "command": "wrap"
-    },
-    {
-      "name": "🔄 Замена instance",
-      "command": "replace"
-    },
-    {
-      "name": "🏷️ Переименовать",
-      "command": "rename"
-    },
-    {
-      "name": "📦 Перенести объекты",
-      "command": "moveObjects"
-    },
-    {
-      "name": "✂️ Нарезка 1px",
-      "command": "slice"
-    },
-    {
-      "name": "🖼️ Размеры в арт",
-      "command": "art"
-    },
-    {
-      "name": "🔍 Найти похожие",
-      "command": "findSimilar"
-    },
-    {
-      "name": "🟠 Средний приоритет",
-      "command": "floatingTag"
-    },
-
-    {
-      "name": "🔴 Высокий приоритет",
-      "command": "urgentTag"
-    },
-
-    {
-      "name": "🟢 Задача выполнена",
-      "command": "doneTag"
-    },
-    {
-      "name": "🔵 На ревью",
-      "command": "reviewTag"
-    },
-    {
-      "name": "🚀 Ready for Dev",
-      "command": "readyForDev"
-    },
-    {
-      "name": "🌐 Перевод",
-      "command": "translate"
-    },
-    {
-      "name": "🔲 Сетка",
-      "command": "gridLayout"
-    },
-    {
-      "name": "🔷 Компонент",
-      "command": "makeComponent"
-    },
-    {
-      "name": "⭐ Custom",
-      "command": "custom"
-    },
-    {
       "name": "📖 FAQ",
       "command": "faq"
     },
     {
       "name": "🎛️ Панель инструментов",
       "command": "ui"
-    },
-    {
-      "name": "⚙️ Настройки",
-      "command": "settings"
     }
   ]
 }

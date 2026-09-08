@@ -165,9 +165,13 @@ case "doneTag":
       const savedExpandChkR = await figma.clientStorage.getAsync("expandChkR");
       const savedExpandChkL = await figma.clientStorage.getAsync("expandChkL");
       const savedDynamic = await figma.clientStorage.getAsync("dynamicToolbar");
+      const savedHidden = await figma.clientStorage.getAsync("hiddenTools");
+      const savedVisibleCount = await figma.clientStorage.getAsync("visibleCount");
+      const savedWidthDelta = await figma.clientStorage.getAsync("widthDelta");
+      const savedHeightDelta = await figma.clientStorage.getAsync("heightDelta");
       const initHeight = savedDynamic === "dynamic" ? 33 : 58;
       figma.showUI(__html__, { width: 320, height: initHeight, title: "Kiss" });
-      figma.ui.postMessage({ type: "toolbar", savedOrder: savedOrder || null, savedIconStyle: savedIconStyle || null, savedTheme: savedTheme || null, savedExpandChkR: savedExpandChkR !== undefined ? savedExpandChkR : null, savedExpandChkL: savedExpandChkL !== undefined ? savedExpandChkL : null, savedDynamic: savedDynamic || "normal" });
+      figma.ui.postMessage({ type: "toolbar", savedOrder: savedOrder || null, savedIconStyle: savedIconStyle || null, savedTheme: savedTheme || null, savedExpandChkR: savedExpandChkR !== undefined ? savedExpandChkR : null, savedExpandChkL: savedExpandChkL !== undefined ? savedExpandChkL : null, savedDynamic: savedDynamic || "normal", savedHidden: savedHidden || [], savedVisibleCount: typeof savedVisibleCount === "number" ? savedVisibleCount : null, savedWidthDelta: typeof savedWidthDelta === "number" ? savedWidthDelta : null, savedHeightDelta: typeof savedHeightDelta === "number" ? savedHeightDelta : null });
       checkFrameSelected();
     })();
     break;
@@ -230,6 +234,22 @@ figma.ui.onmessage = async (msg) => {
     await figma.clientStorage.setAsync(key, msg.checked);
     return;
   }
+  if (msg.type === "saveHidden") {
+    await figma.clientStorage.setAsync("hiddenTools", msg.hidden);
+    return;
+  }
+  if (msg.type === "saveVisibleCount") {
+    await figma.clientStorage.setAsync("visibleCount", msg.value);
+    return;
+  }
+  if (msg.type === "saveWidthDelta") {
+    await figma.clientStorage.setAsync("widthDelta", msg.value);
+    return;
+  }
+  if (msg.type === "saveHeightDelta") {
+    await figma.clientStorage.setAsync("heightDelta", msg.value);
+    return;
+  }
   if (msg.type === "settingsDone") {
     figma.notify("Настройки применены ✅");
     // Reopen toolbar
@@ -239,9 +259,13 @@ figma.ui.onmessage = async (msg) => {
     const savedExpandChkR = await figma.clientStorage.getAsync("expandChkR");
     const savedExpandChkL = await figma.clientStorage.getAsync("expandChkL");
     const savedDynamic = await figma.clientStorage.getAsync("dynamicToolbar");
+    const savedHidden = await figma.clientStorage.getAsync("hiddenTools");
+    const savedVisibleCount = await figma.clientStorage.getAsync("visibleCount");
+    const savedWidthDelta = await figma.clientStorage.getAsync("widthDelta");
+    const savedHeightDelta = await figma.clientStorage.getAsync("heightDelta");
     const initHeight = savedDynamic === "dynamic" ? 33 : 58;
     figma.showUI(__html__, { width: 320, height: initHeight, title: "Kiss" });
-    figma.ui.postMessage({ type: "toolbar", savedOrder: savedOrder || null, savedIconStyle: savedIconStyle || null, savedTheme: savedTheme || null, savedExpandChkR: savedExpandChkR !== undefined ? savedExpandChkR : null, savedExpandChkL: savedExpandChkL !== undefined ? savedExpandChkL : null, savedDynamic: savedDynamic || "normal" });
+    figma.ui.postMessage({ type: "toolbar", savedOrder: savedOrder || null, savedIconStyle: savedIconStyle || null, savedTheme: savedTheme || null, savedExpandChkR: savedExpandChkR !== undefined ? savedExpandChkR : null, savedExpandChkL: savedExpandChkL !== undefined ? savedExpandChkL : null, savedDynamic: savedDynamic || "normal", savedHidden: savedHidden || [], savedVisibleCount: typeof savedVisibleCount === "number" ? savedVisibleCount : null, savedWidthDelta: typeof savedWidthDelta === "number" ? savedWidthDelta : null, savedHeightDelta: typeof savedHeightDelta === "number" ? savedHeightDelta : null });
     return;
   }
   if (msg.type === "translationResult") {
