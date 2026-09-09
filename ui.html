@@ -625,7 +625,6 @@
       box-sizing: border-box;
     }
     .sr-box {
-      position: relative;
       box-sizing: border-box;
       border: 1.5px solid var(--tray-border);
       border-radius: 8px;
@@ -635,26 +634,6 @@
       flex-direction: column;
       gap: 8px;
     }
-    .sr-close {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 20px;
-      height: 20px;
-      border: none;
-      border-radius: 4px;
-      background: transparent;
-      color: var(--label-color);
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      z-index: 1;
-    }
-    .sr-close:hover { background: var(--btn-hover); }
 
     .sr-cards {
       display: flex;
@@ -768,6 +747,29 @@
       white-space: nowrap;
     }
     .sr-target-name:hover { filter: brightness(0.97); }
+    .sr-target-name.sr-placeholder {
+      background: transparent;
+      border: 1.5px dashed var(--tray-border);
+      color: var(--label-color);
+      opacity: 0.6;
+      font-weight: 500;
+      font-size: 12px;
+      cursor: default;
+    }
+    .sr-target-name.sr-placeholder:hover { filter: none; }
+    .sr-empty-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 120px;
+      padding: 10px;
+      font-size: 11px;
+      color: var(--label-color);
+      opacity: 0.6;
+      text-align: center;
+      pointer-events: none;
+    }
 
     /* Инлайн-режим выбора нового объекта — перекрывает тело своей карточки */
     .sr-pick-inline {
@@ -1064,7 +1066,6 @@
   </div>
   <div id="simReplacePanel">
     <div class="sr-box">
-      <button class="sr-close" id="srClose" type="button" title="Закрыть">×</button>
       <div class="sr-cards">
         <div class="sr-card">
           <div class="sr-card-header">
@@ -1290,7 +1291,7 @@
         icon: IC.search, emojiIcon: "🔍",
         label: "Похожие → заменить (экспериментальная)",
         getPreview(s) { const i = s === "emoji" ? "🔍" : IC.search; return `<div class="btn-preview"><div class="btn-preview-item tool-btn-blue"><span class="bp-icon">${i}</span><span class="bp-label">Похожие</span></div></div>`; },
-        description: `Синяя кнопка рядом с обычной «Похожие» — экспериментальная функция массовой замены по образцу.\n\nВыдели <b>два</b> объекта: сначала — образец, по которому искать похожие (имя + размер, как в обычном «Похожие»), вторым — на что их заменять. Запусти команду — снизу откроется панель из двух блоков и панели кнопок.\n\n<b>Слева</b> — «Объекты, которые меняем»: прокручиваемый список найденных похожих объектов и подпись «Найдено: N» внизу. Кнопка <b>«Выбрать другой»</b> в шапке — выдели в Figma новый объект-образец и нажми «Сохранить» (или «Отмена») — плагин заново найдёт похожие на него и обновит список.\n\n<b>Справа</b> — «Целевой объект»: имя объекта-замены крупно по центру. Такая же кнопка <b>«Выбрать другой»</b> — работает так же, но меняет саму замену (список источников не трогает).\n\nКлик по любому пункту списка или по имени замены переводит фокус Figma на него.\n\nСнизу — панель кнопок: слева <b>«Очистить всё»</b> (снимает выделение в Figma) и <b>«Далее»</b> (переводит фокус на следующий пункт списка, без замены); справа — три кнопки замены:\n• <b>Заменить</b> — заменяет текущий выбранный в списке объект на замену (с сохранением размера самой замены, а не исходного объекта).\n• <b>Заменить + далее</b> — то же самое, и сразу переходит к следующему незаменённому пункту.\n• <b>Заменить всё</b> — заменяет все незаменённые пункты списка разом.\n\nУже заменённые пункты помечаются галочкой. Чекбокс на кнопке работает как у обычной «Похожие»: включён — ищет только в текущей секции, выключен — по всей странице (сохраняется и для повторного поиска через «Выбрать другой»).\n\nПовторный клик по кнопке, пока панель открыта, закрывает её и снимает выделение в Figma.`,
+        description: `Синяя кнопка рядом с обычной «Похожие» — экспериментальная функция массовой замены по образцу.\n\nПанель открывается по клику <b>в любом случае</b>, независимо от того, что выделено. Удобнее всего сразу выделить <b>два</b> объекта — сначала образец для поиска (имя + размер, как в обычном «Похожие»), вторым — на что заменять: тогда поиск запустится сразу. Но можно открыть и пустую панель, а образец и замену выбрать по отдельности прямо в ней.\n\n<b>Слева</b> — «Объекты, которые меняем»: прокручиваемый список найденных похожих объектов и подпись «Найдено: N» внизу (или подсказка «Объект, который меняем, не выбран», если пусто). Кнопка <b>«Выбрать другой»</b> в шапке — выдели в Figma новый объект-образец и нажми «Сохранить» (или «Отмена») — плагин заново найдёт похожие на него и обновит список. Сам целевой объект в этот список никогда не попадает, даже если совпадает по имени и размеру.\n\n<b>Справа</b> — «Целевой объект»: имя объекта-замены крупно по центру (или подсказка «Целевой объект не выбран»). Такая же кнопка <b>«Выбрать другой»</b> — работает так же, но меняет саму замену (список источников не трогает).\n\nКлик по любому пункту списка или по имени замены переводит фокус Figma на него.\n\nСнизу — панель кнопок: слева <b>«Очистить всё»</b> (снимает выделение в Figma) и <b>«Далее»</b> (переводит фокус на следующий пункт списка, без замены); справа — три кнопки замены:\n• <b>Заменить</b> — заменяет текущий выбранный в списке объект на замену (с сохранением размера самой замены, а не исходного объекта).\n• <b>Заменить + далее</b> — то же самое, и сразу переходит к следующему незаменённому пункту.\n• <b>Заменить всё</b> — заменяет все незаменённые пункты списка разом.\n\nУже заменённые пункты помечаются галочкой. Чекбокс на кнопке работает как у обычной «Похожие»: включён — ищет только в текущей секции, выключен — по всей странице (сохраняется и для повторного поиска через «Выбрать другой»).\n\nСпециальной кнопки закрытия у панели нет — повторный клик по синей кнопке, пока панель открыта, закрывает её и снимает выделение в Figma.`,
         how: "Выдели образец, затем (в то же выделение) — объект-замену, и нажми синюю кнопку «Похожие». Дальше работай со списком в открывшейся панели."
       },
       {
@@ -1438,7 +1439,6 @@
     const srTitle = document.getElementById("srTitle");
     const srTargetItem = document.getElementById("srTargetItem");
     const srList = document.getElementById("srList");
-    const srClose = document.getElementById("srClose");
     const srReplaceBtn = document.getElementById("srReplace");
     const srReplaceNextBtn = document.getElementById("srReplaceNext");
     const srReplaceAllBtn = document.getElementById("srReplaceAll");
@@ -1490,21 +1490,35 @@
 
     function renderSimReplacePanel() {
       srTitle.textContent = `Найдено: ${simSources.length}`;
-      srTargetItem.textContent = simTarget ? simTarget.name : "";
+
+      if (simTarget) {
+        srTargetItem.textContent = simTarget.name;
+        srTargetItem.classList.remove("sr-placeholder");
+      } else {
+        srTargetItem.textContent = "Целевой объект не выбран";
+        srTargetItem.classList.add("sr-placeholder");
+      }
 
       srList.innerHTML = "";
-      simSources.forEach((s, i) => {
-        const item = document.createElement("button");
-        item.type = "button";
-        item.className = "sr-item" + (i === simCurrentIdx ? " current" : "") + (s.replaced ? " done" : "");
-        item.innerHTML = `<span class="sr-item-name">${s.name}</span>${s.replaced ? '<span class="sr-item-check">✓</span>' : ""}`;
-        item.addEventListener("click", () => {
-          simCurrentIdx = i;
-          parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: s.id } }, "*");
-          renderSimReplacePanel();
+      if (!simSources.length) {
+        const hint = document.createElement("div");
+        hint.className = "sr-empty-hint";
+        hint.textContent = "Объект, который меняем, не выбран";
+        srList.appendChild(hint);
+      } else {
+        simSources.forEach((s, i) => {
+          const item = document.createElement("button");
+          item.type = "button";
+          item.className = "sr-item" + (i === simCurrentIdx ? " current" : "") + (s.replaced ? " done" : "");
+          item.innerHTML = `<span class="sr-item-name">${s.name}</span>${s.replaced ? '<span class="sr-item-check">✓</span>' : ""}`;
+          item.addEventListener("click", () => {
+            simCurrentIdx = i;
+            parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: s.id } }, "*");
+            renderSimReplacePanel();
+          });
+          srList.appendChild(item);
         });
-        srList.appendChild(item);
-      });
+      }
     }
 
     function closeSimReplacePanel() {
@@ -1532,8 +1546,6 @@
       for (let i = 0; i < simSources.length; i++) if (!simSources[i].replaced) return i;
       return -1;
     }
-
-    srClose.addEventListener("click", closeSimReplacePanel);
 
     srTargetItem.addEventListener("click", () => {
       if (!simTarget) return;
@@ -1586,7 +1598,7 @@
     srChooseSourceBtn.addEventListener("click", () => { setPickingTarget(false); setPickingSource(true); });
     srSourcePickCancelBtn.addEventListener("click", () => setPickingSource(false));
     srSourcePickSaveBtn.addEventListener("click", () => {
-      parent.postMessage({ pluginMessage: { type: "run", command: "pickNewSource", sectionOnly: simSectionOnly } }, "*");
+      parent.postMessage({ pluginMessage: { type: "run", command: "pickNewSource", sectionOnly: simSectionOnly, targetId: simTarget ? simTarget.id : null } }, "*");
     });
 
     srChangeTargetBtn.addEventListener("click", () => { setPickingSource(false); setPickingTarget(true); });
@@ -1759,6 +1771,8 @@
       }
       if (msg.type === "targetUpdated") {
         simTarget = msg.target;
+        // На всякий случай убираем новую цель из списка источников, если она там уже была
+        if (simTarget) simSources = simSources.filter(s => s.id !== simTarget.id);
         setPickingTarget(false);
         renderSimReplacePanel();
         if (simApplyState) simApplyState();

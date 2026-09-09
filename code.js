@@ -313,7 +313,7 @@ figma.ui.onmessage = async (msg) => {
     case "similarReplaceAll": similarReplaceAll(msg.sourceIds, msg.targetId); break;
     case "clearSelection":   figma.currentPage.selection = []; break;
     case "pickNewTarget":    pickNewTarget(); break;
-    case "pickNewSource":    pickNewSource(msg.sectionOnly); break;
+    case "pickNewSource":    pickNewSource(msg.sectionOnly, msg.targetId); break;
     case "floatingTag":      createMediumTag(); break;
     case "urgentTag":        createUrgentTag(); break;
     case "doneTag":          createDoneTag(); break;
@@ -1799,8 +1799,11 @@ function searchSimilarNodes(source, sectionOnly) {
 function findSimilarForReplace(sectionOnly) {
   const selection = figma.currentPage.selection;
 
+  // Панель открывается в любом случае — если выделено не ровно 2 объекта
+  // (в нужном порядке), просто открываем её пустой: источник и цель
+  // выбираются потом по отдельности через "Выбрать другой" в каждой карточке.
   if (selection.length !== 2) {
-    figma.notify("Выдели 2 объекта: сначала образец для поиска, вторым — на что заменить");
+    figma.ui.postMessage({ type: "similarReplaceResults", sources: [], target: null });
     return;
   }
 
@@ -1811,7 +1814,7 @@ function findSimilarForReplace(sectionOnly) {
   const target = ordered[1];
 
   if (!source || !target) {
-    figma.notify("Не удалось определить порядок выделения — выдели заново");
+    figma.ui.postMessage({ type: "similarReplaceResults", sources: [], target: null });
     return;
   }
 
@@ -1820,19 +1823,27 @@ function findSimilarForReplace(sectionOnly) {
   setTimeout(() => {
     searchNotify.cancel();
     const matches = searchSimilarNodes(source, sectionOnly);
-    if (matches === null) return;
+    const targetInfo = { id: target.id, name: target.name };
+    if (matches === null) {
+      figma.ui.postMessage({ type: "similarReplaceResults", sources: [], target: targetInfo });
+      return;
+    }
+
+    // Сам целевой объект мог совпасть по имени+размеру — исключаем его
+    // из списка "объектов, которые меняем"
+    const filtered = matches.filter(n => n.id !== target.id);
 
     figma.ui.postMessage({
       type: "similarReplaceResults",
-      sources: matches.map(n => ({ id: n.id, name: n.name })),
-      target: { id: target.id, name: target.name }
+      sources: filtered.map(n => ({ id: n.id, name: n.name })),
+      target: targetInfo
     });
   }, 50);
 }
 
 // Берёт текущее выделение Figma как новый образец и заново ищет похожие —
 // для кнопки "Выбрать другой" у списка источников в панели
-function pickNewSource(sectionOnly) {
+function pickNewSource(sectionOnly, targetId) {
   const selection = figma.currentPage.selection;
   if (selection.length !== 1) {
     figma.notify("Выдели ровно один объект — новый образец для поиска");
@@ -1846,9 +1857,12 @@ function pickNewSource(sectionOnly) {
     const matches = searchSimilarNodes(source, sectionOnly);
     if (matches === null) return;
 
+    // Исключаем текущий целевой объект из списка источников, если он совпал
+    const filtered = targetId ? matches.filter(n => n.id !== targetId) : matches;
+
     figma.ui.postMessage({
       type: "sourceUpdated",
-      sources: matches.map(n => ({ id: n.id, name: n.name }))
+      sources: filtered.map(n => ({ id: n.id, name: n.name }))
     });
   }, 50);
 }
