@@ -678,6 +678,8 @@
       position: relative;
       flex: 1;
       min-height: 70px;
+      display: flex;
+      flex-direction: column;
     }
     .sr-card-body-center {
       display: flex;
@@ -715,6 +717,8 @@
       max-height: 80px;
       overflow-y: auto;
       padding: 4px;
+      flex: 1;
+      min-height: 0;
     }
     .sr-item {
       display: flex;
@@ -1915,6 +1919,10 @@
       const customizePanel = document.getElementById("customizePanel");
       const toolTray = document.getElementById("toolTray");
       let expanded = false;
+      // true, если панель тулбара была свёрнута и её раскрыла именно кнопка
+      // "Похожие" (чтобы при закрытии панели свернуть обратно, а не оставлять
+      // раскрытой, если пользователь и так держал её раскрытой сам)
+      let simAutoExpanded = false;
 
       // Кнопка-переключатель "Настройки" и стрелка — постоянные элементы,
       // не входят в tools/active и не участвуют в скрытии/перетаскивании.
@@ -2076,8 +2084,22 @@
               // Повторный клик, пока панель уже открыта, — закрывает её и снимает выделение
               if (simReplaceOpen) {
                 closeSimReplacePanel();
+                // Если тулбар был свёрнут и раскрылся именно из-за этой кнопки —
+                // сворачиваем обратно к исходному виду
+                if (simAutoExpanded) {
+                  simAutoExpanded = false;
+                  expanded = false;
+                  applyState();
+                }
                 parent.postMessage({ pluginMessage: { type: "run", command: "clearSelection" } }, "*");
                 return;
+              }
+              // Открываем на полную ширину, даже если тулбар свёрнут — панель
+              // "Похожие" должна быть видна сразу вместе со всеми кнопками
+              if (!expanded) {
+                simAutoExpanded = true;
+                expanded = true;
+                applyState();
               }
             }
             parent.postMessage({ pluginMessage: { type: "run", command: t.command, sectionOnly: schk.checked } }, "*");
