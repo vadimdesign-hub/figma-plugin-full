@@ -2056,6 +2056,14 @@
         return result;
       }
 
+      // figma.ui.resize() требует целые width/height — getBoundingClientRect()
+      // отдаёт дробные значения (например 356.5), и Figma тихо (unhandled promise
+      // rejection) отклоняет такой resize, окно просто не меняет размер.
+      // Всегда округляем перед отправкой.
+      function sendResize(width, height) {
+        parent.postMessage({ pluginMessage: { type: "resize", width: Math.round(width), height: Math.round(height) } }, "*");
+      }
+
       function applyState() {
         const collapsedList = expanded ? active : computeCollapsedVisible();
         const collapsedSet = new Set(collapsedList);
@@ -2089,7 +2097,7 @@
         }
         const panelOpen = customizeMode || simReplaceOpen;
         const h = panelOpen ? panelFullHeight() : baseH;
-        parent.postMessage({ pluginMessage: { type: "resize", width: currentTbWidth, height: h } }, "*");
+        sendResize(currentTbWidth, h);
 
         // Подстраховка: на первый кадр после открытия/изменения панели браузер
         // мог ещё не доверстать реальную высоту — перепроверяем и досылаем
@@ -2100,7 +2108,7 @@
           const recheck = () => {
             const actualH = panelFullHeight();
             if (Math.abs(actualH - h) > 1) {
-              parent.postMessage({ pluginMessage: { type: "resize", width: currentTbWidth, height: actualH } }, "*");
+              sendResize(currentTbWidth, actualH);
             }
           };
           requestAnimationFrame(recheck);
@@ -2123,7 +2131,7 @@
           if (!isHoverExpanded) {
             isHoverExpanded = true;
             tbEl.classList.add("expanded");
-            if (!customizeMode) parent.postMessage({ pluginMessage: { type: "resize", width: currentTbWidth, height: 58 } }, "*");
+            if (!customizeMode) sendResize(currentTbWidth, 58);
           }
         };
         const collapseToolbar = () => {
@@ -2131,7 +2139,7 @@
             isHoverExpanded = false;
             if (!customizeMode) {
               tbEl.classList.remove("expanded");
-              parent.postMessage({ pluginMessage: { type: "resize", width: currentTbWidth, height: 33 } }, "*");
+              sendResize(currentTbWidth, 33);
             }
           }
         };
