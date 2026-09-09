@@ -616,8 +616,8 @@
     .tool-btn-blue:active { background: var(--btn-blue-active); }
     .tool-btn-blue .btn-label { color: var(--btn-blue-fg); }
 
-    /* Панель "Похожие → заменить" — цель сверху на всю ширину,
-       ниже список (узкий, слева) и кнопки действий (широкие, справа) */
+    /* Панель "Похожие → заменить" — два блока сверху (источники / цель),
+       у каждого своя кнопка "Выбрать другой"; снизу панель кнопок действий */
     #simReplacePanel {
       display: none;
       flex-direction: column;
@@ -625,117 +625,99 @@
       box-sizing: border-box;
     }
     .sr-box {
+      position: relative;
       box-sizing: border-box;
       border: 1.5px solid var(--tray-border);
       border-radius: 8px;
       background: var(--tray-bg);
-      overflow: hidden;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-    }
-    .sr-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px;
-      border-bottom: 1px solid var(--tray-border);
-    }
-    .sr-title {
-      font-size: 10px;
-      color: var(--label-color);
+      gap: 8px;
     }
     .sr-close {
-      width: 18px;
-      height: 18px;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 20px;
+      height: 20px;
       border: none;
       border-radius: 4px;
       background: transparent;
       color: var(--label-color);
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
+      z-index: 1;
     }
     .sr-close:hover { background: var(--btn-hover); }
 
-    /* Блок цели — на всю ширину, сразу под заголовком, самый заметный элемент панели */
-    .sr-target-block {
+    .sr-cards {
+      display: flex;
+      gap: 8px;
+    }
+    .sr-card {
+      flex: 1;
+      min-width: 0;
+      box-sizing: border-box;
+      border: 1px solid var(--tray-border);
+      border-radius: 7px;
+      background: var(--tb-bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sr-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--tray-border);
+    }
+    .sr-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--label-color);
+    }
+    .sr-choose-btn {
+      border: none;
+      border-radius: 6px;
       background: var(--btn-blue-bg);
-      border-bottom: 1.5px solid var(--tray-border);
-    }
-    .sr-target-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      flex: 1;
-    }
-    .sr-target-label {
-      font-size: 11px;
-      color: var(--btn-blue-fg);
-      opacity: 0.8;
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-    .sr-target-item {
-      border: none;
-      background: var(--tb-bg);
-      color: var(--btn-blue-fg);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: left;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      min-width: 0;
-      flex: 1;
-      max-width: 360px;
-    }
-    .sr-target-item:hover { filter: brightness(0.96); }
-    .sr-target-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    .sr-change-btn {
-      border: none;
-      background: transparent;
       color: var(--btn-blue-fg);
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
-      padding: 7px 10px;
-      border-radius: 6px;
+      padding: 6px 10px;
       white-space: nowrap;
+      flex-shrink: 0;
     }
-    .sr-change-btn:hover { background: var(--btn-blue-hover); }
-    .sr-pick-actions { display: none; align-items: center; gap: 6px; }
-    .sr-btn.sm { padding: 7px 12px; font-size: 11px; }
+    .sr-choose-btn:hover { background: var(--btn-blue-hover); }
 
-    .sr-body {
+    .sr-card-body {
+      position: relative;
+      flex: 1;
+      min-height: 140px;
+    }
+    .sr-card-body-center {
       display: flex;
-      align-items: stretch;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
     }
-    .sr-list-col {
-      width: 240px;
-      flex-shrink: 0;
-      box-sizing: border-box;
-      border-right: 1px solid var(--tray-border);
+    .sr-card-footer {
+      padding: 7px 10px;
+      font-size: 10px;
+      color: var(--label-color);
+      border-top: 1px solid var(--tray-border);
     }
+
     .sr-list {
-      max-height: 210px;
+      max-height: 160px;
       overflow-y: auto;
       padding: 4px;
     }
@@ -770,29 +752,62 @@
     }
     .sr-item.done { opacity: 0.55; }
 
-    .sr-actions-col {
-      flex: 1;
-      min-width: 0;
-      box-sizing: border-box;
-      padding: 10px;
+    .sr-target-name {
+      border: none;
+      background: var(--btn-blue-bg);
+      color: var(--btn-blue-fg);
+      border-radius: 7px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .sr-actions {
-      display: flex;
+    .sr-target-name:hover { filter: brightness(0.97); }
+
+    /* Инлайн-режим выбора нового объекта — перекрывает тело своей карточки */
+    .sr-pick-inline {
+      display: none;
+      position: absolute;
+      inset: 0;
       flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--tb-bg);
+      padding: 10px;
+      text-align: center;
     }
+    .sr-pick-hint {
+      font-size: 11px;
+      color: var(--label-color);
+      line-height: 1.4;
+    }
+    .sr-pick-actions { display: flex; gap: 6px; }
+    .sr-btn.sm { padding: 7px 14px; font-size: 11px; }
+
+    .sr-actionbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sr-actionbar-side { display: flex; gap: 6px; }
+    .sr-actionbar.disabled { opacity: 0.4; pointer-events: none; }
     .sr-btn {
       border: none;
       border-radius: 6px;
       background: var(--btn-bg);
       color: var(--label-color);
       cursor: pointer;
-      font-size: 10px;
-      padding: 6px 8px;
-      text-align: left;
+      font-size: 11px;
+      padding: 8px 12px;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .sr-btn:hover { background: var(--btn-hover); }
     .sr-btn.primary { background: var(--btn-blue-fg); color: #fff; }
@@ -1049,35 +1064,51 @@
   </div>
   <div id="simReplacePanel">
     <div class="sr-box">
-      <div class="sr-header">
-        <span class="sr-title" id="srTitle">Найдено: 0</span>
-        <button class="sr-close" id="srClose" type="button" title="Закрыть">×</button>
-      </div>
-      <div class="sr-target-block">
-        <div class="sr-target-left">
-          <span class="sr-target-label" id="srTargetLabel">Заменить на:</span>
-          <button class="sr-target-item" id="srTargetItem" type="button"></button>
+      <button class="sr-close" id="srClose" type="button" title="Закрыть">×</button>
+      <div class="sr-cards">
+        <div class="sr-card">
+          <div class="sr-card-header">
+            <span class="sr-card-title">Объекты, которые меняем</span>
+            <button class="sr-choose-btn" id="srChooseSource" type="button">Выбрать другой</button>
+          </div>
+          <div class="sr-card-body">
+            <div class="sr-list" id="srList"></div>
+            <div class="sr-pick-inline" id="srSourcePick">
+              <span class="sr-pick-hint">Выдели новый объект в Figma</span>
+              <div class="sr-pick-actions">
+                <button class="sr-btn primary sm" id="srSourcePickSave" type="button">Сохранить</button>
+                <button class="sr-btn sm" id="srSourcePickCancel" type="button">Отмена</button>
+              </div>
+            </div>
+          </div>
+          <div class="sr-card-footer" id="srTitle">Найдено: 0</div>
         </div>
-        <div class="sr-target-right">
-          <button class="sr-change-btn" id="srChangeTarget" type="button">Сменить объект</button>
-          <div class="sr-pick-actions" id="srPickActions">
-            <button class="sr-btn primary sm" id="srPickSave" type="button">Сохранить</button>
-            <button class="sr-btn sm" id="srPickCancel" type="button">Отмена</button>
+        <div class="sr-card">
+          <div class="sr-card-header">
+            <span class="sr-card-title">Целевой объект</span>
+            <button class="sr-choose-btn" id="srChangeTarget" type="button">Выбрать другой</button>
+          </div>
+          <div class="sr-card-body sr-card-body-center">
+            <button class="sr-target-name" id="srTargetItem" type="button"></button>
+            <div class="sr-pick-inline" id="srTargetPick">
+              <span class="sr-pick-hint">Выдели новый объект в Figma</span>
+              <div class="sr-pick-actions">
+                <button class="sr-btn primary sm" id="srPickSave" type="button">Сохранить</button>
+                <button class="sr-btn sm" id="srPickCancel" type="button">Отмена</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="sr-body">
-        <div class="sr-list-col">
-          <div class="sr-list" id="srList"></div>
+      <div class="sr-actionbar" id="srActionbar">
+        <div class="sr-actionbar-side">
+          <button class="sr-btn danger" id="srClear" type="button">Очистить всё</button>
+          <button class="sr-btn" id="srNext" type="button">Далее</button>
         </div>
-        <div class="sr-actions-col">
-          <div class="sr-actions" id="srActions">
-            <button class="sr-btn primary" id="srReplace" type="button">Заменить</button>
-            <button class="sr-btn primary" id="srReplaceNext" type="button">Заменить + далее</button>
-            <button class="sr-btn primary" id="srReplaceAll" type="button">Заменить всё</button>
-            <button class="sr-btn" id="srNext" type="button">Далее</button>
-            <button class="sr-btn danger" id="srClear" type="button">Очистить всё</button>
-          </div>
+        <div class="sr-actionbar-side">
+          <button class="sr-btn primary" id="srReplace" type="button">Заменить</button>
+          <button class="sr-btn primary" id="srReplaceNext" type="button">Заменить + далее</button>
+          <button class="sr-btn primary" id="srReplaceAll" type="button">Заменить всё</button>
         </div>
       </div>
     </div>
@@ -1259,7 +1290,7 @@
         icon: IC.search, emojiIcon: "🔍",
         label: "Похожие → заменить (экспериментальная)",
         getPreview(s) { const i = s === "emoji" ? "🔍" : IC.search; return `<div class="btn-preview"><div class="btn-preview-item tool-btn-blue"><span class="bp-icon">${i}</span><span class="bp-label">Похожие</span></div></div>`; },
-        description: `Синяя кнопка рядом с обычной «Похожие» — экспериментальная функция массовой замены по образцу.\n\nВыдели <b>два</b> объекта: сначала — образец, по которому искать похожие (имя + размер, как в обычном «Похожие»), вторым — на что их заменять. Запусти команду — снизу откроется панель.\n\nСразу под заголовком — заметный синий блок «Заменить на» с именем объекта-замены и кнопкой <b>«Сменить объект»</b> справа: если передумал — выдели в Figma другой объект и нажми появившееся «Сохранить» (или «Отмена», чтобы оставить как было) — дальнейшие замены пойдут уже на него.\n\nНиже — узкий прокручиваемый список найденных похожих объектов слева и крупные кнопки действий справа. Клик по пункту списка (или по замене) переводит фокус Figma на него.\n\nКнопки действий:\n• <b>Заменить</b> — заменяет текущий выбранный в списке объект на замену (с сохранением размера самой замены, а не исходного объекта).\n• <b>Заменить + далее</b> — то же самое, и сразу переходит к следующему незаменённому пункту.\n• <b>Заменить всё</b> — заменяет все незаменённые пункты списка разом.\n• <b>Далее</b> — просто переводит фокус на следующий пункт списка, без замены.\n• <b>Очистить всё</b> — снимает выделение в Figma.\n\nУже заменённые пункты помечаются галочкой. Чекбокс на кнопке работает как у обычной «Похожие»: включён — ищет только в текущей секции, выключен — по всей странице.`,
+        description: `Синяя кнопка рядом с обычной «Похожие» — экспериментальная функция массовой замены по образцу.\n\nВыдели <b>два</b> объекта: сначала — образец, по которому искать похожие (имя + размер, как в обычном «Похожие»), вторым — на что их заменять. Запусти команду — снизу откроется панель из двух блоков и панели кнопок.\n\n<b>Слева</b> — «Объекты, которые меняем»: прокручиваемый список найденных похожих объектов и подпись «Найдено: N» внизу. Кнопка <b>«Выбрать другой»</b> в шапке — выдели в Figma новый объект-образец и нажми «Сохранить» (или «Отмена») — плагин заново найдёт похожие на него и обновит список.\n\n<b>Справа</b> — «Целевой объект»: имя объекта-замены крупно по центру. Такая же кнопка <b>«Выбрать другой»</b> — работает так же, но меняет саму замену (список источников не трогает).\n\nКлик по любому пункту списка или по имени замены переводит фокус Figma на него.\n\nСнизу — панель кнопок: слева <b>«Очистить всё»</b> (снимает выделение в Figma) и <b>«Далее»</b> (переводит фокус на следующий пункт списка, без замены); справа — три кнопки замены:\n• <b>Заменить</b> — заменяет текущий выбранный в списке объект на замену (с сохранением размера самой замены, а не исходного объекта).\n• <b>Заменить + далее</b> — то же самое, и сразу переходит к следующему незаменённому пункту.\n• <b>Заменить всё</b> — заменяет все незаменённые пункты списка разом.\n\nУже заменённые пункты помечаются галочкой. Чекбокс на кнопке работает как у обычной «Похожие»: включён — ищет только в текущей секции, выключен — по всей странице (сохраняется и для повторного поиска через «Выбрать другой»).`,
         how: "Выдели образец, затем (в то же выделение) — объект-замену, и нажми синюю кнопку «Похожие». Дальше работай со списком в открывшейся панели."
       },
       {
@@ -1399,6 +1430,7 @@
     let simTarget = null;      // {id, name}
     let simCurrentIdx = 0;
     let simReplaceOpen = false;
+    let simSectionOnly = false;    // чекбокс "только в секции" — запоминаем для повторного поиска
     let simApplyState = null;      // ссылка на applyState() открытого тулбара — пересчитать высоту окна
     let simCloseCustomize = null;  // закрывает панель "Настройки" тулбара, если она открыта
 
@@ -1412,21 +1444,36 @@
     const srReplaceAllBtn = document.getElementById("srReplaceAll");
     const srNextBtn = document.getElementById("srNext");
     const srClearBtn = document.getElementById("srClear");
+    const srActionbar = document.getElementById("srActionbar");
+
+    const srChooseSourceBtn = document.getElementById("srChooseSource");
+    const srSourcePick = document.getElementById("srSourcePick");
+    const srSourcePickSaveBtn = document.getElementById("srSourcePickSave");
+    const srSourcePickCancelBtn = document.getElementById("srSourcePickCancel");
+
     const srChangeTargetBtn = document.getElementById("srChangeTarget");
-    const srTargetLabel = document.getElementById("srTargetLabel");
-    const srPickActions = document.getElementById("srPickActions");
+    const srTargetPick = document.getElementById("srTargetPick");
     const srPickSaveBtn = document.getElementById("srPickSave");
     const srPickCancelBtn = document.getElementById("srPickCancel");
-    const srActionsEl = document.getElementById("srActions");
+
+    let pickingSource = false;
     let pickingTarget = false;
 
-    function setPickingMode(on) {
+    function updateActionbarState() {
+      srActionbar.classList.toggle("disabled", pickingSource || pickingTarget);
+    }
+
+    function setPickingSource(on) {
+      pickingSource = on;
+      srSourcePick.style.display = on ? "flex" : "none";
+      updateActionbarState();
+      if (simApplyState) simApplyState();
+    }
+
+    function setPickingTarget(on) {
       pickingTarget = on;
-      srTargetLabel.textContent = on ? "Выдели новый объект в Figma" : "Заменить на:";
-      srTargetItem.style.display = on ? "none" : "";
-      srChangeTargetBtn.style.display = on ? "none" : "";
-      srPickActions.style.display = on ? "flex" : "none";
-      srActionsEl.style.display = on ? "none" : "flex";
+      srTargetPick.style.display = on ? "flex" : "none";
+      updateActionbarState();
       if (simApplyState) simApplyState();
     }
 
@@ -1452,6 +1499,8 @@
     function closeSimReplacePanel() {
       simReplaceOpen = false;
       srPanel.style.display = "none";
+      setPickingSource(false);
+      setPickingTarget(false);
       if (simApplyState) simApplyState();
     }
 
@@ -1461,6 +1510,8 @@
       simTarget = target;
       simCurrentIdx = 0;
       simReplaceOpen = true;
+      setPickingSource(false);
+      setPickingTarget(false);
       srPanel.style.display = "flex";
       renderSimReplacePanel();
       if (simApplyState) simApplyState();
@@ -1523,8 +1574,14 @@
       parent.postMessage({ pluginMessage: { type: "run", command: "clearSelection" } }, "*");
     });
 
-    srChangeTargetBtn.addEventListener("click", () => setPickingMode(true));
-    srPickCancelBtn.addEventListener("click", () => setPickingMode(false));
+    srChooseSourceBtn.addEventListener("click", () => { setPickingTarget(false); setPickingSource(true); });
+    srSourcePickCancelBtn.addEventListener("click", () => setPickingSource(false));
+    srSourcePickSaveBtn.addEventListener("click", () => {
+      parent.postMessage({ pluginMessage: { type: "run", command: "pickNewSource", sectionOnly: simSectionOnly } }, "*");
+    });
+
+    srChangeTargetBtn.addEventListener("click", () => { setPickingSource(false); setPickingTarget(true); });
+    srPickCancelBtn.addEventListener("click", () => setPickingTarget(false));
     srPickSaveBtn.addEventListener("click", () => {
       parent.postMessage({ pluginMessage: { type: "run", command: "pickNewTarget" } }, "*");
     });
@@ -1693,7 +1750,15 @@
       }
       if (msg.type === "targetUpdated") {
         simTarget = msg.target;
-        setPickingMode(false);
+        setPickingTarget(false);
+        renderSimReplacePanel();
+        if (simApplyState) simApplyState();
+        return;
+      }
+      if (msg.type === "sourceUpdated") {
+        simSources = (msg.sources || []).map(s => ({ ...s, replaced: false }));
+        simCurrentIdx = 0;
+        setPickingSource(false);
         renderSimReplacePanel();
         if (simApplyState) simApplyState();
         return;
@@ -1926,6 +1991,7 @@
           schk.addEventListener("click", e => e.stopPropagation());
           btn.appendChild(schk);
           btn.addEventListener("click", () => {
+            if (t.command === "similarReplace") simSectionOnly = schk.checked;
             parent.postMessage({ pluginMessage: { type: "run", command: t.command, sectionOnly: schk.checked } }, "*");
           });
         } else if (t.hasKeepSizeCheck) {

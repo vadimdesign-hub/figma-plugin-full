@@ -313,6 +313,7 @@ figma.ui.onmessage = async (msg) => {
     case "similarReplaceAll": similarReplaceAll(msg.sourceIds, msg.targetId); break;
     case "clearSelection":   figma.currentPage.selection = []; break;
     case "pickNewTarget":    pickNewTarget(); break;
+    case "pickNewSource":    pickNewSource(msg.sectionOnly); break;
     case "floatingTag":      createMediumTag(); break;
     case "urgentTag":        createUrgentTag(); break;
     case "doneTag":          createDoneTag(); break;
@@ -1767,6 +1768,34 @@ function findSimilar(sectionOnly) {
 // 🔍✨ ПОХОЖИЕ (экспериментальная) — находит объекты, похожие на первый
 // выделенный, и открывает в панели список для замены их на второй выделенный
 // ============================
+// Общий поиск: находит все объекты, похожие на source (тип+имя+размер),
+// в пределах его секции (если sectionOnly) или по всей странице.
+// Возвращает null (и уведомляет), если sectionOnly, а объект не в секции.
+function searchSimilarNodes(source, sectionOnly) {
+  const searchName = source.name;
+  const srcWidth = Math.round(source.width);
+  const srcHeight = Math.round(source.height);
+
+  let searchRoot = figma.currentPage;
+  if (sectionOnly) {
+    let p = source.parent;
+    while (p && p.type !== "SECTION") p = p.parent;
+    if (p && p.type === "SECTION") {
+      searchRoot = p;
+    } else {
+      figma.notify("Объект не внутри секции");
+      return null;
+    }
+  }
+
+  const candidates = searchRoot.findAllWithCriteria({ types: [source.type] });
+  return candidates.filter(node =>
+    node.name === searchName &&
+    Math.round(node.width) === srcWidth &&
+    Math.round(node.height) === srcHeight
+  );
+}
+
 function findSimilarForReplace(sectionOnly) {
   const selection = figma.currentPage.selection;
 
@@ -1786,38 +1815,40 @@ function findSimilarForReplace(sectionOnly) {
     return;
   }
 
-  const searchName = source.name;
-  const srcWidth = Math.round(source.width);
-  const srcHeight = Math.round(source.height);
-
-  let searchRoot = figma.currentPage;
-  if (sectionOnly) {
-    let p = source.parent;
-    while (p && p.type !== "SECTION") p = p.parent;
-    if (p && p.type === "SECTION") {
-      searchRoot = p;
-    } else {
-      figma.notify("Объект не внутри секции");
-      return;
-    }
-  }
-
   const searchNotify = figma.notify("Идёт поиск, подождите...", { timeout: Infinity });
 
   setTimeout(() => {
     searchNotify.cancel();
-
-    const candidates = searchRoot.findAllWithCriteria({ types: [source.type] });
-    const matches = candidates.filter(node =>
-      node.name === searchName &&
-      Math.round(node.width) === srcWidth &&
-      Math.round(node.height) === srcHeight
-    );
+    const matches = searchSimilarNodes(source, sectionOnly);
+    if (matches === null) return;
 
     figma.ui.postMessage({
       type: "similarReplaceResults",
       sources: matches.map(n => ({ id: n.id, name: n.name })),
       target: { id: target.id, name: target.name }
+    });
+  }, 50);
+}
+
+// Берёт текущее выделение Figma как новый образец и заново ищет похожие —
+// для кнопки "Выбрать другой" у списка источников в панели
+function pickNewSource(sectionOnly) {
+  const selection = figma.currentPage.selection;
+  if (selection.length !== 1) {
+    figma.notify("Выдели ровно один объект — новый образец для поиска");
+    return;
+  }
+  const source = selection[0];
+  const searchNotify = figma.notify("Идёт поиск, подождите...", { timeout: Infinity });
+
+  setTimeout(() => {
+    searchNotify.cancel();
+    const matches = searchSimilarNodes(source, sectionOnly);
+    if (matches === null) return;
+
+    figma.ui.postMessage({
+      type: "sourceUpdated",
+      sources: matches.map(n => ({ id: n.id, name: n.name }))
     });
   }, 50);
 }
