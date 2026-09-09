@@ -118,11 +118,6 @@ case "doneTag":
     readyForDevSection();
     break;
 
-  // 🔍 Находит все объекты с таким же именем и размером
-  case "findSimilar":
-    findSimilar();
-    break;
-
   // 🌐 Перевод
   case "translate":
     keepAlive = true;
@@ -306,7 +301,6 @@ figma.ui.onmessage = async (msg) => {
       else wrapObjectsInSection();
       break;
     case "art":              artTextResize(); break;
-    case "findSimilar":      findSimilar(msg.sectionOnly); break;
     case "similarReplace":   findSimilarForReplace(msg.sectionOnly); break;
     case "focusNode":        focusNode(msg.nodeId); break;
     case "similarReplaceOne": similarReplaceOne(msg.sourceId, msg.targetId); break;
@@ -1706,62 +1700,6 @@ async function createReviewTag() {
     figma.notify("❌ Ошибка: " + (err.message || err));
     tryClose();
   }
-}
-
-// ============================
-// Find Similar — Найти похожие
-// ============================
-function findSimilar(sectionOnly) {
-  const selection = figma.currentPage.selection;
-
-  if (selection.length !== 1) {
-    figma.notify("Выдели один объект");
-    tryClose();
-    return;
-  }
-
-  const target = selection[0];
-  const targetName = target.name;
-  const targetWidth = Math.round(target.width);
-  const targetHeight = Math.round(target.height);
-
-  // Если sectionOnly — ищем родительскую секцию
-  let searchRoot = figma.currentPage;
-  if (sectionOnly) {
-    let parent = target.parent;
-    while (parent && parent.type !== "SECTION") parent = parent.parent;
-    if (parent && parent.type === "SECTION") {
-      searchRoot = parent;
-    } else {
-      figma.notify("Объект не внутри секции");
-      tryClose();
-      return;
-    }
-  }
-
-  const searchNotify = figma.notify("Идет поиск, подождите...", { timeout: Infinity });
-
-  setTimeout(() => {
-    searchNotify.cancel();
-    const candidates = searchRoot.findAllWithCriteria({ types: [target.type] });
-
-    const matches = candidates.filter(node =>
-      node.name === targetName &&
-      Math.round(node.width) === targetWidth &&
-      Math.round(node.height) === targetHeight
-    );
-
-    if (matches.length <= 1) {
-      figma.notify("Похожих объектов не найдено");
-      tryClose();
-      return;
-    }
-
-    figma.currentPage.selection = matches;
-    figma.viewport.scrollAndZoomIntoView(matches);
-    figma.notify(`Найдено ${matches.length} похожих объектов`);
-    tryClose();
-  }, 50);
 }
 
 // ============================
