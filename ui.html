@@ -626,13 +626,10 @@
     }
     .sr-box {
       box-sizing: border-box;
-      border: 1.5px solid var(--tray-border);
-      border-radius: 8px;
-      background: var(--tray-bg);
-      padding: 10px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      padding: 4px;
     }
 
     .sr-cards {
@@ -684,9 +681,9 @@
     }
     .sr-card-body-center {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
-      padding: 12px 10px 6px;
+      padding: 10px;
     }
     .sr-card-title-group {
       display: flex;
@@ -707,6 +704,11 @@
       font-size: 10px;
       font-weight: 600;
       flex-shrink: 0;
+    }
+    .sr-count-badge.zero {
+      background: var(--btn-bg);
+      color: var(--label-color);
+      opacity: 0.7;
     }
 
     .sr-list {
@@ -767,13 +769,18 @@
       color: var(--label-color);
       opacity: 0.6;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 11px;
+      padding: 0;
       cursor: default;
     }
     .sr-target-name.sr-placeholder:hover { filter: none; }
     .sr-empty-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
       min-height: 60px;
-      padding: 12px 10px 6px;
+      padding: 10px;
       font-size: 11px;
       color: var(--label-color);
       opacity: 0.6;
@@ -1081,9 +1088,9 @@
           <div class="sr-card-header">
             <div class="sr-card-title-group">
               <span class="sr-card-title">Объекты, которые меняем</span>
-              <span class="sr-count-badge" id="srTitle">0</span>
+              <span class="sr-count-badge zero" id="srTitle">0</span>
             </div>
-            <button class="sr-choose-btn" id="srChooseSource" type="button">Выбрать другой</button>
+            <button class="sr-choose-btn" id="srChooseSource" type="button">Выбрать</button>
           </div>
           <div class="sr-card-body">
             <div class="sr-list" id="srList"></div>
@@ -1099,7 +1106,7 @@
         <div class="sr-card">
           <div class="sr-card-header">
             <span class="sr-card-title">Целевой объект</span>
-            <button class="sr-choose-btn" id="srChangeTarget" type="button">Выбрать другой</button>
+            <button class="sr-choose-btn" id="srChangeTarget" type="button">Выбрать</button>
           </div>
           <div class="sr-card-body sr-card-body-center">
             <button class="sr-target-name" id="srTargetItem" type="button"></button>
@@ -1495,13 +1502,17 @@
 
     function renderSimReplacePanel() {
       srTitle.textContent = String(simSources.length);
+      srTitle.classList.toggle("zero", simSources.length === 0);
+      srChooseSourceBtn.textContent = simSources.length ? "Выбрать другой" : "Выбрать";
 
       if (simTarget) {
         srTargetItem.textContent = simTarget.name;
         srTargetItem.classList.remove("sr-placeholder");
+        srChangeTargetBtn.textContent = "Выбрать другой";
       } else {
         srTargetItem.textContent = "Целевой объект не выбран";
         srTargetItem.classList.add("sr-placeholder");
+        srChangeTargetBtn.textContent = "Выбрать";
       }
 
       srList.innerHTML = "";
