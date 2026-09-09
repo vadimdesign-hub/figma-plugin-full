@@ -747,14 +747,41 @@
     }
     .sr-item.done { opacity: 0.55; }
 
+    .sr-target-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      max-width: 100%;
+    }
+    .sr-target-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
+    }
+    .sr-dim-w, .sr-dim-h {
+      font-size: 9px;
+      color: var(--label-color);
+      opacity: 0.55;
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .sr-dim-h {
+      position: absolute;
+      right: 100%;
+      margin-right: 4px;
+    }
     .sr-target-name {
       border: none;
-      background: var(--btn-blue-bg);
-      color: var(--btn-blue-fg);
-      border-radius: 7px;
-      padding: 14px 18px;
-      font-size: 15px;
-      font-weight: 700;
+      background: var(--btn-bg);
+      color: var(--label-color);
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
       text-align: center;
       max-width: 100%;
@@ -762,7 +789,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .sr-target-name:hover { filter: brightness(0.97); }
+    .sr-target-name:hover { background: var(--btn-hover); }
     .sr-target-name.sr-placeholder {
       background: transparent;
       border: none;
@@ -1109,7 +1136,13 @@
             <button class="sr-choose-btn" id="srChangeTarget" type="button">Выбрать</button>
           </div>
           <div class="sr-card-body sr-card-body-center">
-            <button class="sr-target-name" id="srTargetItem" type="button"></button>
+            <div class="sr-target-wrap">
+              <span class="sr-dim-w" id="srTargetDimW"></span>
+              <div class="sr-target-row">
+                <span class="sr-dim-h" id="srTargetDimH"></span>
+                <button class="sr-target-name" id="srTargetItem" type="button"></button>
+              </div>
+            </div>
             <div class="sr-pick-inline" id="srTargetPick">
               <span class="sr-pick-hint">Выдели новый объект в Figma</span>
               <div class="sr-pick-actions">
@@ -1450,6 +1483,8 @@
     const srPanel = document.getElementById("simReplacePanel");
     const srTitle = document.getElementById("srTitle");
     const srTargetItem = document.getElementById("srTargetItem");
+    const srTargetDimW = document.getElementById("srTargetDimW");
+    const srTargetDimH = document.getElementById("srTargetDimH");
     const srList = document.getElementById("srList");
     const srReplaceBtn = document.getElementById("srReplace");
     const srReplaceNextBtn = document.getElementById("srReplaceNext");
@@ -1509,10 +1544,14 @@
         srTargetItem.textContent = simTarget.name;
         srTargetItem.classList.remove("sr-placeholder");
         srChangeTargetBtn.textContent = "Выбрать другой";
+        srTargetDimW.textContent = typeof simTarget.width === "number" ? simTarget.width : "";
+        srTargetDimH.textContent = typeof simTarget.height === "number" ? simTarget.height : "";
       } else {
         srTargetItem.textContent = "Целевой объект не выбран";
         srTargetItem.classList.add("sr-placeholder");
         srChangeTargetBtn.textContent = "Выбрать";
+        srTargetDimW.textContent = "";
+        srTargetDimH.textContent = "";
       }
 
       srList.innerHTML = "";

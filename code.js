@@ -1761,7 +1761,7 @@ function findSimilarForReplace(sectionOnly) {
   setTimeout(() => {
     searchNotify.cancel();
     const matches = searchSimilarNodes(source, sectionOnly);
-    const targetInfo = { id: target.id, name: target.name };
+    const targetInfo = { id: target.id, name: target.name, width: Math.round(target.width), height: Math.round(target.height) };
     if (matches === null) {
       figma.ui.postMessage({ type: "similarReplaceResults", sources: [], target: targetInfo });
       return;
@@ -1869,7 +1869,7 @@ function pickNewTarget() {
     return;
   }
   const node = selection[0];
-  figma.ui.postMessage({ type: "targetUpdated", target: { id: node.id, name: node.name } });
+  figma.ui.postMessage({ type: "targetUpdated", target: { id: node.id, name: node.name, width: Math.round(node.width), height: Math.round(node.height) } });
   figma.notify("Объект-замена обновлён ✅");
 }
 
