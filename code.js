@@ -312,6 +312,7 @@ figma.ui.onmessage = async (msg) => {
     case "similarReplaceOne": similarReplaceOne(msg.sourceId, msg.targetId); break;
     case "similarReplaceAll": similarReplaceAll(msg.sourceIds, msg.targetId); break;
     case "clearSelection":   figma.currentPage.selection = []; break;
+    case "pickNewTarget":    pickNewTarget(); break;
     case "floatingTag":      createMediumTag(); break;
     case "urgentTag":        createUrgentTag(); break;
     case "doneTag":          createDoneTag(); break;
@@ -1877,6 +1878,17 @@ function similarReplaceAll(sourceIds, targetId) {
   figma.notify(`Заменено объектов: ${replaced.length} 🚀`);
 }
 
+// Берёт текущее выделение Figma как новый объект-замену для панели "Похожие → заменить"
+function pickNewTarget() {
+  const selection = figma.currentPage.selection;
+  if (selection.length !== 1) {
+    figma.notify("Выдели ровно один объект — новую замену");
+    return;
+  }
+  const node = selection[0];
+  figma.ui.postMessage({ type: "targetUpdated", target: { id: node.id, name: node.name } });
+  figma.notify("Объект-замена обновлён ✅");
+}
 
 
 // ============================
