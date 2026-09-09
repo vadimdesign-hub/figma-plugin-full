@@ -58,6 +58,10 @@
       --tray-bg: rgba(0,0,0,0.02);
       --tray-bg-hover: rgba(31,143,255,0.08);
       --tray-border-hover: #1f8fff;
+      --btn-blue-bg: #e5f1ff;
+      --btn-blue-hover: #d3e6ff;
+      --btn-blue-active: #bfd9ff;
+      --btn-blue-fg: #1f6feb;
     }
 
     :root.dark {
@@ -109,6 +113,10 @@
       --tray-bg: rgba(255,255,255,0.03);
       --tray-bg-hover: rgba(31,143,255,0.12);
       --tray-border-hover: #4a9eff;
+      --btn-blue-bg: #1c2f4a;
+      --btn-blue-hover: #24406b;
+      --btn-blue-active: #2c507f;
+      --btn-blue-fg: #6fb3ff;
     }
 
     body {
@@ -599,6 +607,143 @@
     }
     .tray-chip:active { cursor: grabbing; opacity: 0.6; }
 
+    /* Синий вариант кнопки (экспериментальная "Похожие") */
+    .tool-btn-blue {
+      --svg-stroke: var(--btn-blue-fg);
+      background: var(--btn-blue-bg);
+    }
+    .tool-btn-blue:hover { background: var(--btn-blue-hover); }
+    .tool-btn-blue:active { background: var(--btn-blue-active); }
+    .tool-btn-blue .btn-label { color: var(--btn-blue-fg); }
+
+    /* Панель "Похожие → заменить" */
+    #simReplacePanel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 4px 4px;
+      box-sizing: border-box;
+    }
+    .sr-box {
+      box-sizing: border-box;
+      border: 1.5px solid var(--tray-border);
+      border-radius: 8px;
+      background: var(--tray-bg);
+      overflow: hidden;
+    }
+    .sr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--tray-border);
+    }
+    .sr-title {
+      font-size: 11px;
+      color: var(--label-color);
+    }
+    .sr-close {
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--label-color);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .sr-close:hover { background: var(--btn-hover); }
+    .sr-target-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--tray-border);
+    }
+    .sr-target-label {
+      font-size: 10px;
+      color: var(--label-color);
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+    .sr-target-item {
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+      border: none;
+      background: var(--btn-blue-bg);
+      color: var(--btn-blue-fg);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sr-target-item:hover { background: var(--btn-blue-hover); }
+    .sr-list {
+      max-height: 150px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .sr-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      box-sizing: border-box;
+      border: none;
+      background: transparent;
+      color: var(--label-color);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .sr-item:hover { background: var(--btn-hover); }
+    .sr-item.current { background: var(--btn-blue-bg); color: var(--btn-blue-fg); }
+    .sr-item-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sr-item-check {
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #2fa84f;
+    }
+    .sr-item.done { opacity: 0.55; }
+    .sr-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 10px;
+    }
+    .sr-btn {
+      border: none;
+      border-radius: 6px;
+      background: var(--btn-bg);
+      color: var(--label-color);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 7px 10px;
+      flex: 1 1 auto;
+      white-space: nowrap;
+    }
+    .sr-btn:hover { background: var(--btn-hover); }
+    .sr-btn.primary { background: var(--btn-blue-fg); color: #fff; }
+    .sr-btn.primary:hover { filter: brightness(1.08); }
+    .sr-btn.danger { color: #c0392b; }
+
     .tool-group {
       display: flex;
       flex-direction: column;
@@ -847,6 +992,26 @@
       </div>
     </div>
   </div>
+  <div id="simReplacePanel">
+    <div class="sr-box">
+      <div class="sr-header">
+        <span class="sr-title" id="srTitle">Найдено: 0</span>
+        <button class="sr-close" id="srClose" type="button" title="Закрыть">×</button>
+      </div>
+      <div class="sr-target-row">
+        <span class="sr-target-label">Заменить на:</span>
+        <button class="sr-target-item" id="srTargetItem" type="button"></button>
+      </div>
+      <div class="sr-list" id="srList"></div>
+      <div class="sr-actions">
+        <button class="sr-btn primary" id="srReplace" type="button">Заменить</button>
+        <button class="sr-btn primary" id="srReplaceNext" type="button">Заменить + далее</button>
+        <button class="sr-btn primary" id="srReplaceAll" type="button">Заменить всё</button>
+        <button class="sr-btn" id="srNext" type="button">Далее</button>
+        <button class="sr-btn danger" id="srClear" type="button">Очистить всё</button>
+      </div>
+    </div>
+  </div>
   <!-- SETTINGS -->
   <div id="settings">
     <div class="settings-title">Настройки</div>
@@ -1021,6 +1186,13 @@
         how: "Выдели один объект и запусти команду. Если похожих не найдено — появится уведомление."
       },
       {
+        icon: IC.search, emojiIcon: "🔍",
+        label: "Похожие → заменить (экспериментальная)",
+        getPreview(s) { const i = s === "emoji" ? "🔍" : IC.search; return `<div class="btn-preview"><div class="btn-preview-item tool-btn-blue"><span class="bp-icon">${i}</span><span class="bp-label">Похожие</span></div></div>`; },
+        description: `Синяя кнопка рядом с обычной «Похожие» — экспериментальная функция массовой замены по образцу.\n\nВыдели <b>два</b> объекта: сначала — образец, по которому искать похожие (имя + размер, как в обычном «Похожие»), вторым — на что их заменять. Запусти команду — снизу откроется панель: список всех найденных похожих объектов и отдельно объект-замена. Клик по любому пункту списка (или по замене) переводит фокус Figma на него.\n\nКнопки в панели:\n• <b>Заменить</b> — заменяет текущий выбранный в списке объект на замену (с сохранением размера самой замены, а не исходного объекта).\n• <b>Заменить + далее</b> — то же самое, и сразу переходит к следующему незаменённому пункту.\n• <b>Заменить всё</b> — заменяет все незаменённые пункты списка разом.\n• <b>Далее</b> — просто переводит фокус на следующий пункт списка, без замены.\n• <b>Очистить всё</b> — снимает выделение в Figma.\n\nУже заменённые пункты помечаются галочкой. Чекбокс на кнопке работает как у обычной «Похожие»: включён — ищет только в текущей секции, выключен — по всей странице.`,
+        how: "Выдели образец, затем (в то же выделение) — объект-замену, и нажми синюю кнопку «Похожие». Дальше работай со списком в открывшейся панели."
+      },
+      {
         icon: '<svg width="18" height="18"><circle cx="9" cy="9" r="7" fill="#F59E0B"/></svg>', emojiIcon: "🟠",
         label: "Средний приоритет",
         getPreview(s) { const e = s === "emoji"; const g = (c,em) => e ? em : `<svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="${c}"/></svg>`; return `<div class="btn-preview"><div class="btn-preview-grid"><div class="bp-grid-btn">${g("#F59E0B","🟠")}</div><div class="bp-grid-btn">${g("#EF4444","🔴")}</div><div class="bp-grid-btn">${g("#22C55E","🟢")}</div><div class="bp-grid-btn">${g("#3B82F6","🔵")}</div></div></div>`; },
@@ -1138,6 +1310,7 @@
       { icon: IC.scissors, emojiIcon: "✂️", label: "Нарезка",  command: "slice", width: 120 },
       { icon: IC.image,    emojiIcon: "🖼️", label: "В арт",    command: "art"              },
       { icon: IC.search,   emojiIcon: "🔍", label: "Похожие",  command: "findSimilar", hasSectionCheck: true },
+      { icon: IC.search,   emojiIcon: "🔍", label: "Похожие",  command: "similarReplace", hasSectionCheck: true, variantBlue: true },
       { icon: IC.translate, emojiIcon: "🌐", label: "Перевод", command: "translate"        },
       { icon: IC.gridLayout, emojiIcon: "🔲", label: "Сетка",      command: "gridLayout"   },
       { icon: IC.component, emojiIcon: "🔷", label: "Компонент", command: "makeComponent"  },
@@ -1150,6 +1323,118 @@
     ];
 
     let expandChkR = null, expandChkL = null;
+
+    // ===== Похожие → заменить (экспериментальная панель) =====
+    let simSources = [];       // [{id, name, replaced}]
+    let simTarget = null;      // {id, name}
+    let simCurrentIdx = 0;
+    let simReplaceOpen = false;
+    let simApplyState = null;      // ссылка на applyState() открытого тулбара — пересчитать высоту окна
+    let simCloseCustomize = null;  // закрывает панель "Настройки" тулбара, если она открыта
+
+    const srPanel = document.getElementById("simReplacePanel");
+    const srTitle = document.getElementById("srTitle");
+    const srTargetItem = document.getElementById("srTargetItem");
+    const srList = document.getElementById("srList");
+    const srClose = document.getElementById("srClose");
+    const srReplaceBtn = document.getElementById("srReplace");
+    const srReplaceNextBtn = document.getElementById("srReplaceNext");
+    const srReplaceAllBtn = document.getElementById("srReplaceAll");
+    const srNextBtn = document.getElementById("srNext");
+    const srClearBtn = document.getElementById("srClear");
+
+    function renderSimReplacePanel() {
+      srTitle.textContent = `Найдено: ${simSources.length}`;
+      srTargetItem.textContent = simTarget ? simTarget.name : "";
+
+      srList.innerHTML = "";
+      simSources.forEach((s, i) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "sr-item" + (i === simCurrentIdx ? " current" : "") + (s.replaced ? " done" : "");
+        item.innerHTML = `<span class="sr-item-name">${s.name}</span>${s.replaced ? '<span class="sr-item-check">✓</span>' : ""}`;
+        item.addEventListener("click", () => {
+          simCurrentIdx = i;
+          parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: s.id } }, "*");
+          renderSimReplacePanel();
+        });
+        srList.appendChild(item);
+      });
+    }
+
+    function closeSimReplacePanel() {
+      simReplaceOpen = false;
+      srPanel.style.display = "none";
+      if (simApplyState) simApplyState();
+    }
+
+    function openSimReplacePanel(sources, target) {
+      if (simCloseCustomize) simCloseCustomize();
+      simSources = sources.map(s => ({ ...s, replaced: false }));
+      simTarget = target;
+      simCurrentIdx = 0;
+      simReplaceOpen = true;
+      srPanel.style.display = "flex";
+      renderSimReplacePanel();
+      if (simApplyState) simApplyState();
+    }
+
+    // Ищем следующий незаменённый пункт после from, с переходом по кругу
+    function nextPendingIndex(from) {
+      for (let i = from + 1; i < simSources.length; i++) if (!simSources[i].replaced) return i;
+      for (let i = 0; i < simSources.length; i++) if (!simSources[i].replaced) return i;
+      return -1;
+    }
+
+    srClose.addEventListener("click", closeSimReplacePanel);
+
+    srTargetItem.addEventListener("click", () => {
+      if (!simTarget) return;
+      parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: simTarget.id } }, "*");
+    });
+
+    srReplaceBtn.addEventListener("click", () => {
+      const cur = simSources[simCurrentIdx];
+      if (!cur || !simTarget || cur.replaced) return;
+      parent.postMessage({ pluginMessage: { type: "run", command: "similarReplaceOne", sourceId: cur.id, targetId: simTarget.id } }, "*");
+      cur.replaced = true;
+      renderSimReplacePanel();
+    });
+
+    srReplaceNextBtn.addEventListener("click", () => {
+      const cur = simSources[simCurrentIdx];
+      if (!cur || !simTarget) return;
+      if (!cur.replaced) {
+        parent.postMessage({ pluginMessage: { type: "run", command: "similarReplaceOne", sourceId: cur.id, targetId: simTarget.id } }, "*");
+        cur.replaced = true;
+      }
+      const next = nextPendingIndex(simCurrentIdx);
+      if (next !== -1) {
+        simCurrentIdx = next;
+        parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: simSources[next].id } }, "*");
+      }
+      renderSimReplacePanel();
+    });
+
+    srReplaceAllBtn.addEventListener("click", () => {
+      if (!simTarget) return;
+      const pending = simSources.filter(s => !s.replaced);
+      if (!pending.length) return;
+      parent.postMessage({ pluginMessage: { type: "run", command: "similarReplaceAll", sourceIds: pending.map(s => s.id), targetId: simTarget.id } }, "*");
+      pending.forEach(s => { s.replaced = true; });
+      renderSimReplacePanel();
+    });
+
+    srNextBtn.addEventListener("click", () => {
+      if (!simSources.length) return;
+      simCurrentIdx = (simCurrentIdx + 1) % simSources.length;
+      parent.postMessage({ pluginMessage: { type: "run", command: "focusNode", nodeId: simSources[simCurrentIdx].id } }, "*");
+      renderSimReplacePanel();
+    });
+
+    srClearBtn.addEventListener("click", () => {
+      parent.postMessage({ pluginMessage: { type: "run", command: "clearSelection" } }, "*");
+    });
 
     window.onmessage = (event) => {
       const msg = event.data.pluginMessage;
@@ -1293,6 +1578,27 @@
         return;
       }
 
+      if (msg.type === "similarReplaceResults") {
+        openSimReplacePanel(msg.sources, msg.target);
+        return;
+      }
+      if (msg.type === "similarReplaceDone") {
+        const item = simSources.find(s => s.id === msg.oldId || s.id === msg.newId);
+        if (item) { item.id = msg.newId; item.replaced = true; }
+        renderSimReplacePanel();
+        if (simApplyState) simApplyState();
+        return;
+      }
+      if (msg.type === "similarReplaceAllDone") {
+        (msg.replaced || []).forEach(({ oldId, newId }) => {
+          const item = simSources.find(s => s.id === oldId || s.id === newId);
+          if (item) { item.id = newId; item.replaced = true; }
+        });
+        renderSimReplacePanel();
+        if (simApplyState) simApplyState();
+        return;
+      }
+
       if (msg.type !== "toolbar") return;
 
       const tbEl = document.getElementById("toolbar");
@@ -1425,7 +1731,7 @@
           return grid;
         }
         const btn = document.createElement("button");
-        btn.className = "tool-btn";
+        btn.className = t.variantBlue ? "tool-btn tool-btn-blue" : "tool-btn";
         btn.style.width = btnWidth(t) + "px";
         if (!isDynamic) btn.style.height = btnHeight() + "px"; // в компактном режиме высотой управляет CSS
         if (t.shortcut) {
@@ -1589,12 +1895,17 @@
         currentTbWidth = calcWidth(collapsedList) + (expanded ? BTN_W + GAP : 0);
         const baseH = isDynamic ? (isHoverExpanded ? 58 : 33) : rowHeight();
 
-        // Высота панели настроек считается по фактическому отрендеренному контенту
-        // (реальная высота ряда кнопок + обе секции настроек) + небольшой запас
+        // Высота нижней панели считается по фактическому отрендеренному контенту
+        // (реальная высота ряда кнопок + открытая панель — настроек или "Похожие") + запас.
+        // Настройки и "Похожие → заменить" взаимоисключающие — открыты не одновременно.
         function panelFullHeight() {
-          return toolbar.getBoundingClientRect().height + customizePanel.getBoundingClientRect().height + 8;
+          let extra = 0;
+          if (customizeMode) extra = customizePanel.getBoundingClientRect().height;
+          else if (simReplaceOpen) extra = srPanel.getBoundingClientRect().height;
+          return toolbar.getBoundingClientRect().height + extra + 8;
         }
-        const h = customizeMode ? panelFullHeight() : baseH;
+        const panelOpen = customizeMode || simReplaceOpen;
+        const h = panelOpen ? panelFullHeight() : baseH;
         parent.postMessage({ pluginMessage: { type: "resize", width: currentTbWidth, height: h } }, "*");
 
         // Подстраховка: на первый кадр после открытия/изменения панели браузер
@@ -1602,7 +1913,7 @@
         // resize, если фактическая высота отличается от отправленной.
         // Вторая проверка — с задержкой чуть больше CSS-transition у .tool-btn
         // (height 0.15s), т.к. изменение высоты кнопок анимируется.
-        if (customizeMode) {
+        if (panelOpen) {
           const recheck = () => {
             const actualH = panelFullHeight();
             if (Math.abs(actualH - h) > 1) {
@@ -1613,6 +1924,16 @@
           setTimeout(recheck, 200);
         }
       }
+
+      simApplyState = applyState;
+      simCloseCustomize = function () {
+        if (!customizeMode) return;
+        customizeMode = false;
+        customizeBtn.classList.remove("active");
+        customizePanel.style.display = "none";
+        if (!isHoverExpanded) tbEl.classList.remove("expanded");
+        btnEls.forEach(el => { el.draggable = false; });
+      };
 
       if (isDynamic) {
         const expandToolbar = () => {
@@ -1684,7 +2005,7 @@
         }
         hidden.forEach(t => {
           const chip = document.createElement("div");
-          chip.className = "tool-btn tray-chip";
+          chip.className = t.variantBlue ? "tool-btn tray-chip tool-btn-blue" : "tool-btn tray-chip";
           chip.style.width = btnWidth(t) + "px";
           chip.style.height = btnHeight() + "px";
           chip.draggable = true;
@@ -1758,6 +2079,7 @@
         customizeBtn.classList.toggle("active", customizeMode);
         customizePanel.style.display = customizeMode ? "flex" : "none";
         if (customizeMode) {
+          if (simReplaceOpen) closeSimReplacePanel();
           tbEl.classList.add("expanded");
         } else if (!isHoverExpanded) {
           tbEl.classList.remove("expanded");

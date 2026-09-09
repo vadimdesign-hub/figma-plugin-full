@@ -307,6 +307,11 @@ figma.ui.onmessage = async (msg) => {
       break;
     case "art":              artTextResize(); break;
     case "findSimilar":      findSimilar(msg.sectionOnly); break;
+    case "similarReplace":   findSimilarForReplace(msg.sectionOnly); break;
+    case "focusNode":        focusNode(msg.nodeId); break;
+    case "similarReplaceOne": similarReplaceOne(msg.sourceId, msg.targetId); break;
+    case "similarReplaceAll": similarReplaceAll(msg.sourceIds, msg.targetId); break;
+    case "clearSelection":   figma.currentPage.selection = []; break;
     case "floatingTag":      createMediumTag(); break;
     case "urgentTag":        createUrgentTag(); break;
     case "doneTag":          createDoneTag(); break;
@@ -1755,6 +1760,121 @@ function findSimilar(sectionOnly) {
     figma.notify(`Найдено ${matches.length} похожих объектов`);
     tryClose();
   }, 50);
+}
+
+// ============================
+// 🔍✨ ПОХОЖИЕ (экспериментальная) — находит объекты, похожие на первый
+// выделенный, и открывает в панели список для замены их на второй выделенный
+// ============================
+function findSimilarForReplace(sectionOnly) {
+  const selection = figma.currentPage.selection;
+
+  if (selection.length !== 2) {
+    figma.notify("Выдели 2 объекта: сначала образец для поиска, вторым — на что заменить");
+    return;
+  }
+
+  const ordered = selectionOrderIds.length === 2
+    ? selectionOrderIds.map(id => selection.find(n => n.id === id))
+    : selection;
+  const source = ordered[0];
+  const target = ordered[1];
+
+  if (!source || !target) {
+    figma.notify("Не удалось определить порядок выделения — выдели заново");
+    return;
+  }
+
+  const searchName = source.name;
+  const srcWidth = Math.round(source.width);
+  const srcHeight = Math.round(source.height);
+
+  let searchRoot = figma.currentPage;
+  if (sectionOnly) {
+    let p = source.parent;
+    while (p && p.type !== "SECTION") p = p.parent;
+    if (p && p.type === "SECTION") {
+      searchRoot = p;
+    } else {
+      figma.notify("Объект не внутри секции");
+      return;
+    }
+  }
+
+  const searchNotify = figma.notify("Идёт поиск, подождите...", { timeout: Infinity });
+
+  setTimeout(() => {
+    searchNotify.cancel();
+
+    const candidates = searchRoot.findAllWithCriteria({ types: [source.type] });
+    const matches = candidates.filter(node =>
+      node.name === searchName &&
+      Math.round(node.width) === srcWidth &&
+      Math.round(node.height) === srcHeight
+    );
+
+    figma.ui.postMessage({
+      type: "similarReplaceResults",
+      sources: matches.map(n => ({ id: n.id, name: n.name })),
+      target: { id: target.id, name: target.name }
+    });
+  }, 50);
+}
+
+// Переводит выделение и фокус вьюпорта на объект по id
+function focusNode(nodeId) {
+  const node = figma.getNodeById(nodeId);
+  if (!node) {
+    figma.notify("Объект не найден — возможно, уже заменён или удалён");
+    return;
+  }
+  figma.currentPage.selection = [node];
+  figma.viewport.scrollAndZoomIntoView([node]);
+}
+
+// Клонирует target на место source (позиция source, размер и constraints — свои у target)
+function replaceOneForSimilar(sourceId, targetId) {
+  const source = figma.getNodeById(sourceId);
+  const target = figma.getNodeById(targetId);
+  if (!source || !target) {
+    figma.notify("Объект не найден — возможно, уже заменён");
+    return null;
+  }
+  const parent = source.parent;
+  if (!parent) return null;
+
+  const x = source.x;
+  const y = source.y;
+  const constraints = "constraints" in source ? source.constraints : null;
+  const index = parent.children.indexOf(source);
+
+  const newNode = target.clone();
+  parent.insertChild(index, newNode);
+  newNode.x = x;
+  newNode.y = y;
+  if (constraints && "constraints" in newNode) newNode.constraints = constraints;
+
+  source.remove();
+  return newNode.id;
+}
+
+function similarReplaceOne(sourceId, targetId) {
+  const newId = replaceOneForSimilar(sourceId, targetId);
+  if (newId) {
+    figma.ui.postMessage({ type: "similarReplaceDone", oldId: sourceId, newId });
+    figma.notify("Заменено ✅");
+  }
+}
+
+function similarReplaceAll(sourceIds, targetId) {
+  if (!Array.isArray(sourceIds) || !sourceIds.length) return;
+  const replaced = [];
+  sourceIds.forEach(id => {
+    const newId = replaceOneForSimilar(id, targetId);
+    if (newId) replaced.push({ oldId: id, newId });
+  });
+  figma.ui.postMessage({ type: "similarReplaceAllDone", replaced });
+  figma.notify(`Заменено объектов: ${replaced.length} 🚀`);
 }
 
 
